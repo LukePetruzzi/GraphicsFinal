@@ -82,10 +82,19 @@ function draw() {
     fill(255, 255, 255);
     ellipse(circleFrequency, circleVolume, circleWidth, circleHeight);
 
+
+    // pickup creation and detection
+    // var particle_dims = [circleFrequency, circleVolume, circleWidth];
+    // var rand_dims = createPickup(); // creates and gets the informations about the particle randomly created
+
+    // // collision detection
+    // let coll = collisionDetected(particle_dims, rand_dims);
 }
 function normalize(val, min, max) {
     return (val - min) / (max - min);
 }
+
+
 
 function getFundamentalFrequency(spectrum) {
     let loudest = -1;
@@ -170,3 +179,49 @@ function autoCorrelate(buf, sampleRate) {
 //     lastCamPosY += posChangeY;
 //     rotate(20, [lastCamPosX, lastCamPosY, 0]);
 // }
+
+
+
+// Creates a particle every 500 frames of random sizes and at random locations
+function createPickup() {
+
+    fill(0, 255, 0);
+    var dims = [];
+
+    if (frameCount == 1 || frameCount % 500 == 0) {
+        rand = Math.random() * 20;
+        x = Math.random() * (width - 2 * rand) + rand;
+        y = Math.random() * (height - 2 * rand) + rand;
+        ellipse(x, y, rand * 8, rand * 8);
+    }
+    else {
+        ellipse(x, y, rand * 8, rand * 8);
+    }
+
+    dims = [x, y, rand * 8];
+    return dims;
+}
+
+function collisionDetected(particle_dims, rand_dims) {
+    // https://stackoverflow.com/questions/1736734/circle-circle-collision
+    var particle_x = particle_dims[0];
+    var particle_y = particle_dims[1];
+    var particle_radius = particle_dims[2] / 2;
+
+    var rand_x = rand_dims[0];
+    var rand_y = rand_dims[1];
+    var rand_radius = rand_dims[2] / 2;
+
+
+    var x_y = (rand_x - particle_x) * (rand_x - particle_x) + (particle_y - rand_y) * (particle_y - rand_y);
+    var rads = (particle_radius + rand_radius) * (particle_radius + rand_radius);
+
+    // detect a collision
+    if (x_y <= rads) {
+        // collision happened
+        return true;
+    }
+    else {
+        return false;
+    }
+}
