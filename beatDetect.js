@@ -44,7 +44,6 @@ function setup() {
         pg.line(x, 0, x, -y);
     }
 
-
     // FFT
     fft = new p5.FFT();
 
@@ -58,7 +57,6 @@ function setup() {
     // mid band : 400Hz-2.6kHz
     onsetMid = new OnsetDetect(400, 2600, "Mid", 0.025);
     beatMid = new BeatDetect(400, 2600, "Mid", 0.6);
-
 
     // gui
     button = createButton('play');

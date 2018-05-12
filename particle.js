@@ -1,59 +1,62 @@
 "use strict";
 
+// let particles = new Particles([]);
 
-let particles = []
+// function setup() {
+//     createCanvas(windowWidth, windowHeight);
+// }
 
+// function draw() {
+//     background(0);
 
-function setup() {
-    createCanvas(windowWidth, windowHeight);
+//     if (mouseIsPressed) {
+//         particles.addParticle(undefined, createVector(mouseX, mouseY), 5, color(255, 0, 0));
+//     }
+//     particles.updateParticlePositions();
+//     particles.drawParticles();
+//     particles.deleteOldParticles();
+// }
+
+function Particle(velocity, position, radius, color) {
+    this.velocity = velocity;
+    this.position = position;
+    this.radius = radius;
+    this.color = color;
 }
 
-function draw() {
-    background(0);
-
-    if (mouseIsPressed) {
-        addParticle(undefined, createVector(mouseX, mouseY), 5, color(255, 0, 0));
-    }
-    updateParticlePositions();
-    drawParticles();
-    deleteOldParticles();
+function Particles(array) {
+    this.array = array;
 }
 
-function addParticle(velocity, position, radius, color) {
+Particles.prototype.addParticle = function(velocity, position, radius, color) {
     let MAX_PARTICLE_SPEED = 150;
     // create random velocity if undefined
-
     if (velocity === undefined) {
         velocity = getRandomOnCircle().mult(MAX_PARTICLE_SPEED);
     }
     // create the particle
-    let particle = {
-        velocity: velocity,
-        position: position,
-        radius: radius,
-        color: color
-    }
+    let particle = new Particle(velocity, position, radius, color);
     // add the particle
-    particles.push(particle);
+    particles.array.push(particle);
 }
 
-function updateParticlePositions() {
-    for (let i = 0; i < particles.length; i++) {
-        let particle = particles[i];
+Particles.prototype.updateParticlePositions = function() {
+    for (let i = 0; i < particles.array.length; i++) {
+        let particle = particles.array[i];
 
         let deltaTime = getDeltaTime();
 
         // d = (vi + vf / 2) + t
         let displacement = (p5.Vector.add(particle.velocity, particle.velocity).div(2)).mult(deltaTime);
 
-
-        particles[i].position = particles[i].position.add(displacement);
+        particles.array[i].position = particles.array[i].position.add(displacement);
     }
 }
 
-function drawParticles() {
-    for (let i = 0; i < particles.length; i++) {
-        let particle = particles[i];
+Particles.prototype.drawParticles = function() {
+    for (let i = 0; i < particles.array.length; i++) {
+        let particle = particles.array[i];
+
         fill(particle.color);
         let x = particle.position.x;
         let y = particle.position.y;
@@ -63,17 +66,17 @@ function drawParticles() {
     }
 }
 
-function deleteOldParticles() {
-    for (let i = particles.length - 1; i >= 0; i--) {
-        let particle = particles[i];
+Particles.prototype.deleteOldParticles = function() {
+    for (let i = particles.array.length - 1; i >= 0; i--) {
+        let particle = particles.array[i];
         if (particle.position.x > width || particle.position.x < 0 || particle.position.y > height || particle.position.y < 0) {
-            particles.splice(i, 1);
+            particles.array.splice(i, 1);
         }
     }
 }
 
 
-// *~*~*~**~*~~**~*~*~*~*~*~*~*~**~*~*~
+// *~*~*~**~*~~**~*~ BEGIN PRIVATE HELPER METHODS *~*~*~*~*~*~**~*~*~
 
 // returns time elapsed between frames, in seconds
 function getDeltaTime() {
@@ -87,9 +90,6 @@ function getRandomOnCircle() {
     let y = Math.sin(angle);
 
     return createVector(x, y);
-
-
-    // return (Math.random() * 2) - 1;
 }
 
 function keepAboveThreshold(value, negThreshold, posThreshold) {
@@ -102,3 +102,6 @@ function keepAboveThreshold(value, negThreshold, posThreshold) {
 
     return value;
 }
+
+// *~*~*~**~*~~**~*~ END PRIVATE HELPER METHODS *~*~*~*~*~*~**~*~*~
+
