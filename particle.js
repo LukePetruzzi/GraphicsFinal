@@ -23,7 +23,6 @@ function addParticle(velocity, position, radius, color) {
     let MAX_PARTICLE_SPEED = 150;
     // create random velocity if undefined
 
-
     if (velocity === undefined) {
         velocity = getRandomOnCircle().mult(MAX_PARTICLE_SPEED);
     }
