@@ -55,8 +55,8 @@ function setup() {
     onsetLowMid = new OnsetDetect(140, 400, "lowMid", 0.025);
     beatLowMid = new BeatDetect(140, 400, "lowMid", 0.80);
     // mid band : 400Hz-2.6kHz
-    onsetMid = new OnsetDetect(400, 2600, "Mid", 0.025);
-    beatMid = new BeatDetect(400, 2600, "Mid", 0.6);
+    onsetMid = new OnsetDetect(400, 2600, "mid", 0.025);
+    beatMid = new BeatDetect(400, 2600, "mid", 0.6);
 
     // gui
     button = createButton('play');
@@ -106,7 +106,6 @@ function draw() {
     if (source_file.currentTime() >= src_length - 0.05) {
         source_file.pause();
     }
-
 }
 
 function mouseClicked() {
@@ -143,14 +142,18 @@ function play() {
 
 function OnsetDetect(f1, f2, str, thresh) {
     this.isDetected = false;
+    // f1 and f2 are the low and high frequencies for this detection band
     this.f1 = f1;
     this.f2 = f2;
+    // str is the string for the band... like "bass", or "mid"
     this.str = str;
+    // threshold is the threshold to trigger a detection. energy - penergy
     this.treshold = thresh;
+    // energy is current energy, penergy is the energy on the previous frame
     this.energy = 0;
     this.penergy = 0;
     this.siz = 10;
-    this.sensitivity = 500;
+    this.sensitivity = 400;
 }
 
 OnsetDetect.prototype.display = function (x, y) {
@@ -182,7 +185,6 @@ OnsetDetect.prototype.update = function (fftObject) {
     }
 
     this.penergy = this.energy;
-
 }
 
 
