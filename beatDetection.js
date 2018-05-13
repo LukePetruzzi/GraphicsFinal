@@ -153,27 +153,35 @@ var sketch1 = function (p) {
 var mySketch1 = new p5(sketch1, "sketch1");
 
 
-// sketch 2... main game
+// sketch 2 -> main game
 var sketch2 = function (p) {
+    const PLAYER_VELOCITY = 150;
+    const PLAYER_EASING = 0.05;
+    const COLOR_CHANGE_SENSITIVITY = 500;
 
-    p.COLOR_CHANGE_SENSITIVITY = 500;
+    p.backgroundColor = p.color(0);
     p.changingColor = false;
+
+    p.player = new Player(p.createVector(PLAYER_VELOCITY, PLAYER_VELOCITY), p.createVector(p.floor(p.width / 2), p.floor(p.height / 2)), 50.0, p.color(255, 255, 255), PLAYER_EASING);
 
     p.setup = function () {
         p.createCanvas(p.windowWidth, p.windowHeight);
     };
 
     p.draw = function () {
+        p.background(p.backgroundColor);
+
+        p.player.move(p);
 
         if (beatLow.isDetected && !p.changingColor) {
-            let randomColor = p.color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
-            p.background(randomColor);
+            p.backgroundColor = p.color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
+            p.background(p.backgroundColor);
 
             // wait until can change color again
             p.changingColor = true;
             setTimeout(function () {
                 p.changingColor = false;
-            }, p.COLOR_CHANGE_SENSITIVITY);
+            }, COLOR_CHANGE_SENSITIVITY);
         }
     };
 };
