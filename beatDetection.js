@@ -40,7 +40,7 @@ var sketch1 = function (p) {
 
         p.src_length = p.source_file.duration();
         p.source_file.playMode('restart');
-        
+
         // draw the waveform to an off-screen graphic
         let peaks = p.source_file.getPeaks([600]); // get an array of peaks
         p.pg = p.createGraphics(p.width, 150);
@@ -150,7 +150,8 @@ var mySketch1 = new p5(sketch1, "sketch1");
 var sketch2 = function (p) {
     const PLAYER_VELOCITY = 150;
     const PLAYER_EASING = 0.05;
-    const COLOR_CHANGE_SENSITIVITY = 500;
+    const BACKGROUND_COLOR_CHANGE_SENSITIVITY = 500;
+    const ENEMY_COLOR_CHANGE_SENSITIVITY = 1000;
     const ENEMY_PARTICLE_SPEED = 500;
     // in milliseconds
     const SHOOT_DELAY = 250;
@@ -158,7 +159,7 @@ var sketch2 = function (p) {
 
     p.button;
     p.backgroundColor = p.color(0);
-    p.changingColor = false;
+    p.changingBackgroundColor = false;
 
     // particles and enemies
     p.shots = new Particles([]);
@@ -201,15 +202,27 @@ var sketch2 = function (p) {
 
 
         // beat detection
-        if (beatLow.isDetected && !p.changingColor) {
+        // lows
+        if (beatLow.isDetected && !p.changingBackgroundColor) {
             p.backgroundColor = p.color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
             p.background(p.backgroundColor);
 
             // wait until can change color again
-            p.changingColor = true;
+            p.changingBackgroundColor = true;
             setTimeout(function () {
-                p.changingColor = false;
-            }, COLOR_CHANGE_SENSITIVITY);
+                p.changingBackgroundColor = false;
+            }, BACKGROUND_COLOR_CHANGE_SENSITIVITY);
+        }
+        // mids
+        if (beatMid.isDetected && !p.changingEnemyColor) {
+            let enemyColor = p.color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
+            p.enemies.changeColor(p, enemyColor);
+
+            // wait until can change color again
+            p.changingEnemyColor = true;
+            setTimeout(function () {
+                p.changingEnemyColor = false;
+            }, ENEMY_COLOR_CHANGE_SENSITIVITY);
         }
 
         // enemies

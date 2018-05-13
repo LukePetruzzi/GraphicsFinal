@@ -98,7 +98,12 @@ Particles.prototype.updateEnemyPositions = function (p) {
 
         // check if a particle hit the left side of the screen, and then show a "Game Over" message
         // ***********+ CHANGE THIS SO ONLY ENEMY PARTICLES EXITING THE SCREEN ON THE LEFT CAUSE THIS ?? ***** or make sure the player can never exit the screen on the left <- probably the latter
-        if (this.array[i].position.x < 0) {
+        let enemy = this.array[i];
+        let isHittingPlayer = (enemy.position.x < p.player.position.x + p.player.radius && 
+            enemy.position.x > p.player.position.x - p.player.radius &&
+            enemy.position.y < p.player.position.y + p.player.radius && 
+            enemy.position.y > p.player.position.y - p.player.radius);
+        if (this.array[i].position.x < 0 || isHittingPlayer) {
             p.fill(204, 101, 192, 127);
             let rectWidth = 220;
             let rectHeight = 100;
@@ -160,6 +165,12 @@ Particles.prototype.shoot = function(p, enemies) {
                     enemies.array.splice(j, 1);
                 }
         }
+    }
+}
+
+Particles.prototype.changeColor = function(p, color) {
+    for (let i = 0; i < this.array.length; i++) {
+        this.array[i].color = color;
     }
 }
 
