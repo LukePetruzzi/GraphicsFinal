@@ -90,6 +90,9 @@ function draw() {
     // // collision detection
     // let coll = collisionDetected(particle_dims, rand_dims);
 }
+
+
+
 function normalize(val, min, max) {
     return (val - min) / (max - min);
 }
@@ -98,7 +101,6 @@ function normalize(val, min, max) {
 
 function getFundamentalFrequency(spectrum) {
     let loudest = -1;
-
 }
 function autoCorrelate(buf, sampleRate) {
     var SIZE = buf.length;

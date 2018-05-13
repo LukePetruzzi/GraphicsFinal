@@ -1,144 +1,186 @@
-var file = 'amilli.mp3'
+"use strict";
+
+const SKETCH_1_HEIGHT = 250;
+
+// global detectors
+// instanciation of onset and beat detection from fft
+// low band : 40Hz-120Hz
+let onsetLow = new OnsetDetect(40, 120, "bass", 0.025);
+let beatLow = new BeatDetect(40, 120, "bass", 0.95);
+// lowMid band : 140Hz-400Hz
+let onsetLowMid = new OnsetDetect(140, 400, "lowMid", 0.025);
+let beatLowMid = new BeatDetect(140, 400, "lowMid", 0.80);
+// mid band : 400Hz-2.6kHz
+let onsetMid = new OnsetDetect(400, 2600, "mid", 0.025);
+let beatMid = new BeatDetect(400, 2600, "mid", 0.6);
 
 
-var source_file; // sound file
-var src_length; // hold its duration
+// ***~*~*~*~*~*~*~*~*~*~*~*~ BEGIN SKETCHES **~*~*~*~*~*~*~*~**~*~*~*~*~**~
+// sketch 1 
+var sketch1 = function (p) {
 
-var fft;
+    p.file = 'amilli.mp3'
+    p.source_file; // sound file
+    p.src_length; // hold its duration
+    p.fft;
 
-var pg; // to draw waveform
+    p.pg; // to draw waveform
 
-var playing = false;
-var button;
+    p.playing = false;
+    p.button;
 
-// detectors
-var onsetLow, beatLow;
-var onsetLowMid, beatLowMid;
-var onsetMid, beatMid;
+    console.log("STUFF");
 
 
+    p.preload = function () {
+        console.log("FINALLY INSIDE PRELOAD");
 
-function preload() {
-    source_file = loadSound(file); // preload the sound
-}
+        p.source_file = p.loadSound(p.file); // preload the sound
+    };
 
-function setup() {
-    createCanvas(windowWidth, 250);
-    textAlign(CENTER);
+    p.setup = function () {
+        console.log("FINALLY INSIDE SETUP");
 
-    src_length = source_file.duration();
-    source_file.playMode('restart');
-    console.log("source duration: ", src_length);
+        p.createCanvas(p.windowWidth, SKETCH_1_HEIGHT);
+        p.textAlign(p.CENTER);
 
-    // draw the waveform to an off-screen graphic
-    var peaks = source_file.getPeaks(); // get an array of peaks
-    pg = createGraphics(width, 150);
-    pg.background(100);
-    pg.translate(0, 75);
-    pg.noFill();
-    pg.stroke(0);
-    for (var i = 0; i < peaks.length; i++) {
-        var x = map(i, 0, peaks.length, 0, width);
-        var y = map(peaks[i], 0, 1, 0, 150);
-        pg.line(x, 0, x, y);
-        pg.line(x, 0, x, -y);
+        p.src_length = p.source_file.duration();
+        p.source_file.playMode('restart');
+        console.log("source duration: ", p.src_length);
+
+        // draw the waveform to an off-screen graphic
+        let peaks = p.source_file.getPeaks([600]); // get an array of peaks
+        p.pg = p.createGraphics(p.width, 150);
+        p.pg.background(100);
+        p.pg.translate(0, 75);
+        p.pg.noFill();
+        p.pg.stroke(0);
+        for (let i = 0; i < peaks.length; i++) {
+            let x = p.map(i, 0, peaks.length, 0, p.width);
+            let y = p.map(peaks[i], 0, 1, 0, 150);
+            p.pg.line(x, 0, x, y);
+            p.pg.line(x, 0, x, -y);
+        }
+
+        // FFT
+        p.fft = new p5.FFT();
+
+        // gui
+        p.button = p.createButton('play');
+        p.button.position(3, 3);
+        p.button.mousePressed(p.play);
+    };
+
+
+    p.draw = function () {
+        p.background(180);
+
+        p.image(p.pg, 0, 100); // display our waveform representation
+
+        // draw playhead position 
+        p.fill(255, 255, 180, 150);
+        p.noStroke();
+        p.rect(p.map(p.source_file.currentTime(), 0, p.src_length, 0, p.windowWidth), 100, 3, 150);
+        //display current time
+        p.text("current time: " + p.nfc(p.source_file.currentTime(), 1) + " s", 60, 50);
+
+        // we need to call fft.analyse() before the update functions of our class
+        // this is because we use the getEnergy method inside our class.
+        let spectrum = p.fft.analyze();
+
+        // display and update our detector objects
+        p.text("onset detection", 350, 15);
+        p.text("amplitude treshold", 750, 15);
+
+        onsetLow.display(p, 250, 50);
+        onsetLow.update(p, p.fft);
+
+        beatLow.display(p, 650, 50);
+        beatLow.update(p, p.fft);
+
+        onsetLowMid.display(p, 350, 50);
+        onsetLowMid.update(p, p.fft);
+
+        beatLowMid.display(p, 750, 50);
+        beatLowMid.update(p, p.fft);
+
+        onsetMid.display(p, 450, 50);
+        onsetMid.update(p, p.fft);
+
+        beatMid.display(p, 850, 50);
+        beatMid.update(p, p.fft);
+
+        if (p.source_file.currentTime() >= p.src_length - 0.05) {
+            p.source_file.pause();
+        }
+    };
+
+
+
+    p.mouseClicked = function () {
+        if (p.mouseY > 100 && p.mouseY < 350) {
+            let mapper = p.map(p.mouseX, 0, p.windowWidth, 0, p.src_length);
+            let playpos = p.constrain(mapper, 0, p.src_length);
+            p.source_file.play();
+            p.source_file.play(0, 1, 1, playpos, p.src_length);
+            p.playing = true;
+            p.button.html('pause');
+        }
+        return false;//callback for p5js
     }
 
-    // FFT
-    fft = new p5.FFT();
-
-    // instanciation of onset and beat detection from fft
-    // low band : 40Hz-120Hz
-    onsetLow = new OnsetDetect(40, 120, "bass", 0.025);
-    beatLow = new BeatDetect(40, 120, "bass", 0.95);
-    // lowMid band : 140Hz-400Hz
-    onsetLowMid = new OnsetDetect(140, 400, "lowMid", 0.025);
-    beatLowMid = new BeatDetect(140, 400, "lowMid", 0.80);
-    // mid band : 400Hz-2.6kHz
-    onsetMid = new OnsetDetect(400, 2600, "mid", 0.025);
-    beatMid = new BeatDetect(400, 2600, "mid", 0.6);
-
-    // gui
-    button = createButton('play');
-    button.position(3, 3);
-    button.mousePressed(play);
-}
-
-
-function draw() {
-    background(180);
-
-    image(pg, 0, 100); // display our waveform representation
-
-    // draw playhead position 
-    fill(255, 255, 180, 150);
-    noStroke();
-    rect(map(source_file.currentTime(), 0, src_length, 0, windowWidth), 100, 3, 150);
-    //display current time
-    text("current time: " + nfc(source_file.currentTime(), 1) + " s", 60, 50);
-
-    // we need to call fft.analyse() before the update functions of our class
-    // this is because we use the getEnergy method inside our class.
-    var spectrum = fft.analyze();
-
-    // display and update our detector objects
-    text("onset detection", 350, 15);
-    text("amplitude treshold", 750, 15);
-
-    onsetLow.display(250, 50);
-    onsetLow.update(fft);
-
-    beatLow.display(650, 50);
-    beatLow.update(fft);
-
-    onsetLowMid.display(350, 50);
-    onsetLowMid.update(fft);
-
-    beatLowMid.display(750, 50);
-    beatLowMid.update(fft);
-
-    onsetMid.display(450, 50);
-    onsetMid.update(fft);
-
-    beatMid.display(850, 50);
-    beatMid.update(fft);
-
-    if (source_file.currentTime() >= src_length - 0.05) {
-        source_file.pause();
+    p.keyTyped = function () {
+        if (p.key == ' ') {
+            p.play();
+        }
+        return false; // callback for p5js
     }
-}
 
-function mouseClicked() {
-    if (mouseY > 100 && mouseY < 350) {
-        var playpos = constrain(map(mouseX, 0, windowWidth, 0, src_length), 0, src_length);
-        source_file.play();
-        source_file.play(0, 1, 1, playpos, src_length);
-        playing = true;
-        button.html('pause');
+    p.play = function () {
+        if (p.playing) {
+            p.source_file.pause();
+            p.button.html('play');
+            p.playing = false;
+        }
+        else {
+            p.source_file.play();
+            p.button.html('pause');
+            p.playing = true;
+        }
     }
-    return false;//callback for p5js
-}
+};
+// give the id of the html div as the second parameter
+var mySketch1 = new p5(sketch1, "sketch1");
 
-function keyTyped() {
-    if (key == ' ') {
-        play();
-    }
-    return false; // callback for p5js
-}
 
-function play() {
-    if (playing) {
-        source_file.pause();
-        button.html('play');
-        playing = false;
-    }
-    else {
-        source_file.play();
-        button.html('pause');
-        playing = true;
-    }
-}
+// sketch 2
+var sketch2 = function (p) {
 
+    p.COLOR_CHANGE_SENSITIVITY = 500;
+    p.changingColor = false;
+
+    p.setup = function () {
+        p.createCanvas(p.windowWidth, p.windowHeight);
+    };
+
+    p.draw = function () {
+
+        if (beatLow.isDetected && !p.changingColor) {
+            let randomColor = p.color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
+            p.background(randomColor);
+
+            // wait until can change color again
+            p.changingColor = true;
+            setTimeout(function () {
+                p.changingColor = false;
+            }, p.COLOR_CHANGE_SENSITIVITY);
+        }
+    };
+};
+var mySketch2 = new p5(sketch2, "sketch2");
+
+
+// ***~*~*~*~*~*~*~*~*~*~*~*~ END BEGIN SKETCHES **~*~*~*~*~*~*~*~**~*~*~*~**~
 
 function OnsetDetect(f1, f2, str, thresh) {
     this.isDetected = false;
@@ -156,28 +198,28 @@ function OnsetDetect(f1, f2, str, thresh) {
     this.sensitivity = 400;
 }
 
-OnsetDetect.prototype.display = function (x, y) {
+OnsetDetect.prototype.display = function (p, x, y) {
 
     if (this.isDetected == true) {
-        this.siz = lerp(this.siz, 40, 0.99);
+        this.siz = p.lerp(this.siz, 40, 0.99);
     }
     else if (this.isDetected == false) {
-        this.siz = lerp(this.siz, 15, 0.99);
+        this.siz = p.lerp(this.siz, 15, 0.99);
     }
-    fill(255, 0, 0);
-    ellipse(x, y, this.siz, this.siz);
-    fill(0);
-    text(this.str, x, y);
-    text("( " + this.f1 + " - " + this.f2 + "Hz )", x, y + 10);
+    p.fill(255, 0, 0);
+    p.ellipse(x, y, this.siz, this.siz);
+    p.fill(0);
+    p.text(this.str, x, y);
+    p.text("( " + this.f1 + " - " + this.f2 + "Hz )", x, y + 10);
 }
 
-OnsetDetect.prototype.update = function (fftObject) {
+OnsetDetect.prototype.update = function (p, fftObject) {
     this.energy = fftObject.getEnergy(this.f1, this.f2) / 255;
 
     if (this.isDetected == false) {
         if (this.energy - this.penergy > this.treshold) {
             this.isDetected = true;
-            var self = this;
+            let self = this;
             setTimeout(function () {
                 self.isDetected = false;
             }, this.sensitivity);
@@ -200,31 +242,49 @@ function BeatDetect(f1, f2, str, thresh) {
     this.sensitivity = 500;
 }
 
-BeatDetect.prototype.display = function (x, y) {
+BeatDetect.prototype.display = function (p, x, y) {
 
     if (this.isDetected == true) {
-        this.siz = lerp(this.siz, 40, 0.99);
+        this.siz = p.lerp(this.siz, 40, 0.99);
     }
     else if (this.isDetected == false) {
-        this.siz = lerp(this.siz, 15, 0.99);
+        this.siz = p.lerp(this.siz, 15, 0.99);
     }
-    fill(255, 0, 0);
-    ellipse(x, y, this.siz, this.siz);
-    fill(0);
-    text(this.str, x, y);
-    text("( " + this.f1 + " - " + this.f2 + "Hz )", x, y + 10);
+    p.fill(255, 0, 0);
+    p.ellipse(x, y, this.siz, this.siz);
+    p.fill(0);
+    p.text(this.str, x, y);
+    p.text("( " + this.f1 + " - " + this.f2 + "Hz )", x, y + 10);
 }
 
-BeatDetect.prototype.update = function (fftObject) {
+BeatDetect.prototype.update = function (p, fftObject) {
     this.energy = fftObject.getEnergy(this.f1, this.f2) / 255;
 
     if (this.isDetected == false) {
         if (this.energy > this.treshold) {
             this.isDetected = true;
-            var self = this;
+            let self = this;
             setTimeout(function () {
                 self.isDetected = false;
             }, this.sensitivity);
         }
     }
 }
+
+BeatDetect.prototype.update = function (p, fftObject) {
+    this.energy = fftObject.getEnergy(this.f1, this.f2) / 255;
+
+    if (this.isDetected == false) {
+        if (this.energy > this.treshold) {
+            this.isDetected = true;
+            let self = this;
+            setTimeout(function () {
+                self.isDetected = false;
+            }, this.sensitivity);
+        }
+    }
+}
+
+// **~*~*~**~*~**~*~*~* BEGIN SKETCH 1 FUNCTIONS **~**~*~*~*~*~*~**~*~*~*~*
+
+// **~*~*~**~*~**~*~*~*~*~*~*~*~* END SKETCH 1 FUNCTIONS **~**~*~*~*~*~*~**~~*~*
