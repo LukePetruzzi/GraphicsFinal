@@ -50,15 +50,14 @@ Particles.prototype.addParticle = function (p, velocity, position, radius, color
 }
 
 // Spawns enemy-particles on the right side of the frame every 100 frames that then move to the left at different speeds
-Particles.prototype.addEnemyParticle = function (p, velocity, position, radius, color) {
-    let MAX_ENEMY_PARTICLE_SPEED = 1000; // maximum speed of particle
+Particles.prototype.addEnemyParticle = function (p, speed, velocity, position, radius, color) {
     let x; // x coordinate of velocity
     let y; // y coordinate of velocity
     let rand_height; // random y position on screen
 
     // give the enemy particle the maximum enemy particle speed if velocity is undefined
     if (velocity === undefined) {
-        x = -MAX_ENEMY_PARTICLE_SPEED;
+        x = -speed;
         y = 0;
         velocity = p.createVector(x, y);
     }

@@ -5,23 +5,19 @@ const A = 65;
 const S = 83;
 const D = 68;
 
-
-//let player = new Player(10, createVector(floor(width/2), floor(height/2)), 5, color(255, 0, 0));
-// let this = new Player(10, createVector(10, 10), 5, color(255, 0, 0));
-
 function Player(velocity, position, radius, color, easing) {
     this.velocity = velocity;
     this.position = position;
     this.radius = radius;
     this.color = color;
     this.easing = easing;
+    this.canShoot = true;
 }
 
 Player.prototype.move = function (p) {
 
     let targetx;
     let targety;
-
 
     if (p.keyIsDown(p.UP_ARROW) || p.keyIsDown(W)) {
 

@@ -158,6 +158,10 @@ var sketch2 = function (p) {
     const PLAYER_VELOCITY = 150;
     const PLAYER_EASING = 0.05;
     const COLOR_CHANGE_SENSITIVITY = 500;
+    const ENEMY_PARTICLE_SPEED = 500;
+    // in milliseconds
+    const SHOOT_DELAY = 250;
+    const SHOT_SPEED = 500;
 
     p.button;
     p.backgroundColor = p.color(0);
@@ -180,8 +184,14 @@ var sketch2 = function (p) {
         p.background(p.backgroundColor);
 
         // particles
-        if (p.mouseIsPressed) {
-            p.particles.addParticle(p, undefined, p.createVector(p.mouseX, p.mouseY), 5, p.color(255, 0, 0));
+        if (p.mouseIsPressed && p.player.canShoot) {
+            p.particles.addParticle(p, p.createVector(SHOT_SPEED, 0), p.createVector(p.player.position.x, p.player.position.y), 5, p.color(255, 0, 0));
+
+            // wait until can change color again
+            p.player.canShoot = false;
+            setTimeout(function () {
+                p.player.canShoot = true;
+            }, SHOOT_DELAY);
         }
         p.particles.updateParticlePositions(p);
         p.particles.drawParticles(p);
@@ -199,10 +209,9 @@ var sketch2 = function (p) {
             }, COLOR_CHANGE_SENSITIVITY);
         }
 
-
         // enemies
         if (p.frameCount == 1 || p.frameCount % 100 == 0) {
-            p.enemies.addEnemyParticle(p, undefined, undefined, 50, p.color(0, 0, 255));
+            p.enemies.addEnemyParticle(p, ENEMY_PARTICLE_SPEED, undefined, undefined, 50, p.color(0, 0, 255));
         }
         p.enemies.updateEnemyPositions(p);
         p.enemies.drawParticles(p);
@@ -215,6 +224,8 @@ var sketch2 = function (p) {
         p.particles = new Particles([]);
         p.enemies = new Particles([]);
 
+        p.player.canShoot = true;
+
         // reset the game
         p.loop();
         p.button.hide();
@@ -223,7 +234,7 @@ var sketch2 = function (p) {
 var mySketch2 = new p5(sketch2, "sketch2");
 
 
-// ***~*~*~*~*~*~*~*~*~*~*~*~ END BEGIN SKETCHES **~*~*~*~*~*~*~*~**~*~*~*~**~
+// ***~*~*~*~*~*~*~*~*~*~*~*~ END SKETCHES **~*~*~*~*~*~*~*~**~*~*~*~**~
 
 function OnsetDetect(f1, f2, str, thresh) {
     this.isDetected = false;
@@ -327,7 +338,3 @@ BeatDetect.prototype.update = function (p, fftObject) {
         }
     }
 }
-
-// **~*~*~**~*~**~*~*~* BEGIN SKETCH 1 FUNCTIONS **~**~*~*~*~*~*~**~*~*~*~*
-
-// **~*~*~**~*~**~*~*~*~*~*~*~*~* END SKETCH 1 FUNCTIONS **~**~*~*~*~*~*~**~~*~*
