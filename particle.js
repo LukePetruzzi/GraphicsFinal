@@ -41,7 +41,7 @@ Particles.prototype.addParticle = function (p, velocity, position, radius, color
     let MAX_PARTICLE_SPEED = 150;
     // create random velocity if undefined
     if (velocity === undefined) {
-        velocity = getRandomOnCircle(p).mult(MAX_PARTICLE_SPEED);
+        velocity = getRandomOnCircle(p, 1).mult(MAX_PARTICLE_SPEED);
     }
     // create the particle
     let particle = new Particle(velocity, position, radius, color);
@@ -130,8 +130,7 @@ Particles.prototype.drawParticles = function (p) {
 Particles.prototype.deleteOldParticles = function (p) {
     for (let i = this.array.length - 1; i >= 0; i--) {
         let particle = this.array[i];
-        if (particle.position.x > p.width + this.radius || particle.position.x < 0 - this.radius || particle.position.y > p.height + this.radius || particle.position.y < 0 - this.radius) {
-
+        if (particle.position.x > p.width + particle.radius || particle.position.x < 0 - particle.radius || particle.position.y > p.height + particle.radius || particle.position.y < 0 - particle.radius) {
             this.array.splice(i, 1);
         }
     }
@@ -155,6 +154,9 @@ Particles.prototype.shoot = function(p, enemies) {
                 particle.position.y < enemy.position.y + enemy.radius && 
                 particle.position.y > enemy.position.y - enemy.radius) {
                     this.array.splice(i, 1);
+
+                    spawnOnEnemy(p, enemies.array[j]);
+
                     enemies.array.splice(j, 1);
                 }
         }
@@ -164,16 +166,25 @@ Particles.prototype.shoot = function(p, enemies) {
 
 // *~*~*~**~*~~**~*~ BEGIN PRIVATE HELPER METHODS *~*~*~*~*~*~**~*~*~
 
+function spawnOnEnemy(p, enemy) {
+    const ENEMY_DEATH_PARTICLE_COUNT = 50;
+    const ENEMY_PARTICLE_RADIUS = 4;
+
+    for (let i = 0; i < ENEMY_DEATH_PARTICLE_COUNT; i++) {
+        p.deadEnemyParticles.addParticle(p, undefined, enemy.position.copy().add(getRandomOnCircle(p, enemy.radius)), ENEMY_PARTICLE_RADIUS, enemy.color);
+    }
+}
+
 // returns time elapsed between frames, in seconds
 function getDeltaTime(p) {
     return (1000 / p.frameRate()) / 1000;
 }
 
-function getRandomOnCircle(p) {
+function getRandomOnCircle(p, radius) {
     var angle = Math.random() * Math.PI * 2;
 
-    let x = Math.cos(angle);
-    let y = Math.sin(angle);
+    let x = Math.cos(angle) * radius;
+    let y = Math.sin(angle) * radius;
 
     return p.createVector(x, y);
 }

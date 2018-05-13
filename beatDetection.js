@@ -19,7 +19,7 @@ let beatMid = new BeatDetect(400, 2600, "mid", 0.6);
 // sketch 1 
 var sketch1 = function (p) {
 
-    p.file = 'amilli.mp3'
+    p.file = 'iRomeo.mp3'
     p.source_file; // sound file
     p.src_length; // hold its duration
     p.fft;
@@ -29,25 +29,18 @@ var sketch1 = function (p) {
     p.playing = false;
     p.button;
 
-    console.log("STUFF");
-
 
     p.preload = function () {
-        console.log("FINALLY INSIDE PRELOAD");
-
         p.source_file = p.loadSound(p.file); // preload the sound
     };
 
     p.setup = function () {
-        console.log("FINALLY INSIDE SETUP");
-
         p.createCanvas(p.windowWidth, SKETCH_1_HEIGHT);
         p.textAlign(p.CENTER);
 
         p.src_length = p.source_file.duration();
         p.source_file.playMode('restart');
-        console.log("source duration: ", p.src_length);
-
+        
         // draw the waveform to an off-screen graphic
         let peaks = p.source_file.getPeaks([600]); // get an array of peaks
         p.pg = p.createGraphics(p.width, 150);
@@ -169,7 +162,7 @@ var sketch2 = function (p) {
 
     // particles and enemies
     p.shots = new Particles([]);
-    p.particles = new Particles([]);
+    p.deadEnemyParticles = new Particles([]);
     p.enemies = new Particles([]);
 
     p.player = new Player(p.createVector(PLAYER_VELOCITY, PLAYER_VELOCITY), p.createVector(p.floor(p.width / 2), p.floor(p.height / 2)), 50.0, p.color(255, 255, 255), PLAYER_EASING);
@@ -177,14 +170,14 @@ var sketch2 = function (p) {
 
     // SETUP FUNCTION
     p.setup = function () {
-        p.createCanvas(p.windowWidth, p.windowHeight);
+        p.createCanvas(p.windowWidth, p.windowHeight - SKETCH_1_HEIGHT);
     };
 
     // DRAW FUNCTINO
     p.draw = function () {
         p.background(p.backgroundColor);
 
-        // particles
+        // shooting mechanic
         if (p.mouseIsPressed && p.player.canShoot) {
             p.shots.addParticle(p, p.createVector(SHOT_SPEED, 0), p.createVector(p.player.position.x, p.player.position.y), 5, p.color(255, 0, 0));
 
@@ -198,6 +191,14 @@ var sketch2 = function (p) {
         p.shots.drawParticles(p);
         p.shots.shoot(p, p.enemies);
         p.shots.deleteOldParticles(p);
+
+        // dead enemy particles
+        p.deadEnemyParticles.updateParticlePositions(p);
+        p.noStroke();
+        p.deadEnemyParticles.drawParticles(p);
+        p.stroke(0);
+        p.deadEnemyParticles.deleteOldParticles(p);
+
 
         // beat detection
         if (beatLow.isDetected && !p.changingColor) {
@@ -223,7 +224,8 @@ var sketch2 = function (p) {
     };
 
     p.resetGame = function () {
-        p.particles = new Particles([]);
+        p.shots = new Particles([]);
+        p.deadEnemyParticles = new Particles([]);
         p.enemies = new Particles([]);
 
         p.player.canShoot = true;
