@@ -4,6 +4,8 @@ const W = 87;
 const A = 65;
 const S = 83;
 const D = 68;
+let targetx;
+let targety;
 
 function Player(velocity, position, radius, color, easing) {
     this.velocity = velocity;
@@ -15,9 +17,6 @@ function Player(velocity, position, radius, color, easing) {
 }
 
 Player.prototype.move = function (p) {
-
-    let targetx;
-    let targety;
 
     if (p.keyIsDown(p.UP_ARROW) || p.keyIsDown(W)) {
 
