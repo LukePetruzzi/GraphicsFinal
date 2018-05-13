@@ -19,7 +19,7 @@ let beatMid = new BeatDetect(400, 2600, "mid", 0.6);
 // sketch 1 
 var sketch1 = function (p) {
 
-    p.file = 'amilli.mp3'
+    p.file = 'iRomeo.mp3'
     p.source_file; // sound file
     p.src_length; // hold its duration
     p.fft;
@@ -148,8 +148,8 @@ var mySketch1 = new p5(sketch1, "sketch1");
 
 // sketch 2 -> main game
 var sketch2 = function (p) {
-    const CIRCLE = 0;
-    const TRIANGLE = 1;
+    p.CIRCLE = 0;
+    p.TRIANGLE = 1;
 
     const PLAYER_VELOCITY = 150;
     const PLAYER_EASING = 0.05;
@@ -188,7 +188,7 @@ var sketch2 = function (p) {
 
         // shooting mechanic
         if (p.mouseIsPressed && p.player.canShoot) {
-            p.shots.addParticle(p, p.createVector(SHOT_SPEED, 0), p.createVector(p.player.position.x, p.player.position.y), 5, p.color(255, 0, 0));
+            p.shots.addParticle(p, p.createVector(SHOT_SPEED, 0), p.createVector(p.player.position.x, p.player.position.y), 5, p.color(255, 0, 0), p.CIRCLE, 0);
 
             // wait until can change color again
             p.player.canShoot = false;
@@ -375,7 +375,7 @@ var sketch3 = function (p) {
         let blue_color = Math.random() * 255;
 
         // add, update and draw the particles
-        p.mouse_particles.addParticle(p, p.createVector(x_vel, y_vel), p.createVector(p.mouseX, p.mouseY), 5, p.color(red_color, 0, blue_color));
+        p.mouse_particles.addParticle(p, p.createVector(x_vel, y_vel), p.createVector(p.mouseX, p.mouseY), 5, p.color(red_color, 0, blue_color), p.CIRCLE, 0);
         p.mouse_particles.updateParticlePositions(p);
         p.mouse_particles.drawParticles(p);
 

@@ -39,14 +39,14 @@ function Particles(array) {
     this.array = array;
 }
 
-Particles.prototype.addParticle = function (p, velocity, position, radius, color) {
+Particles.prototype.addParticle = function (p, velocity, position, radius, color, shape, rotation) {
     let MAX_PARTICLE_SPEED = 150;
     // create random velocity if undefined
     if (velocity === undefined) {
         velocity = getRandomOnCircle(p, 1).mult(MAX_PARTICLE_SPEED);
     }
     // create the particle
-    let particle = new Particle(velocity, position, radius, color);
+    let particle = new Particle(velocity, position, radius, color, shape, rotation);
     // add the particle
     this.array.push(particle);
 }
@@ -147,7 +147,6 @@ Particles.prototype.updateWebEnemyPositions = function (p) {
         }
 
         if (particle.position.y > p.height || particle.position.y < 0) {
-            console.log("THIS IS POSITION: ", particle.position);
             this.array.splice(i, 1);
         }
 
@@ -190,7 +189,7 @@ Particles.prototype.drawParticles = function (p) {
         let hei = particle.radius;
         p.ellipse(x, y, wid, hei);
 
-        if (particle.shape == CIRCLE) {
+        if (particle.shape == p.CIRCLE) {
             p.fill(particle.color);
             let x = particle.position.x;
             let y = particle.position.y;
@@ -198,7 +197,7 @@ Particles.prototype.drawParticles = function (p) {
             let hei = particle.radius;
             p.ellipse(x, y, wid, hei);
         }
-        else if (particle.shape == TRIANGLE) {
+        else if (particle.shape == p.TRIANGLE) {
             p.push();
             let rot = particle.rotation;
             let h = particle.radius;
