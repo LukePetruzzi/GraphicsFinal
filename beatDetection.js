@@ -168,6 +168,7 @@ var sketch2 = function (p) {
     p.changingColor = false;
 
     // particles and enemies
+    p.shots = new Particles([]);
     p.particles = new Particles([]);
     p.enemies = new Particles([]);
 
@@ -185,7 +186,7 @@ var sketch2 = function (p) {
 
         // particles
         if (p.mouseIsPressed && p.player.canShoot) {
-            p.particles.addParticle(p, p.createVector(SHOT_SPEED, 0), p.createVector(p.player.position.x, p.player.position.y), 5, p.color(255, 0, 0));
+            p.shots.addParticle(p, p.createVector(SHOT_SPEED, 0), p.createVector(p.player.position.x, p.player.position.y), 5, p.color(255, 0, 0));
 
             // wait until can change color again
             p.player.canShoot = false;
@@ -193,9 +194,10 @@ var sketch2 = function (p) {
                 p.player.canShoot = true;
             }, SHOOT_DELAY);
         }
-        p.particles.updateParticlePositions(p);
-        p.particles.drawParticles(p);
-        p.particles.deleteOldParticles(p);
+        p.shots.updateParticlePositions(p);
+        p.shots.drawParticles(p);
+        p.shots.shoot(p, p.enemies);
+        p.shots.deleteOldParticles(p);
 
         // beat detection
         if (beatLow.isDetected && !p.changingColor) {

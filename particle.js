@@ -130,7 +130,8 @@ Particles.prototype.drawParticles = function (p) {
 Particles.prototype.deleteOldParticles = function (p) {
     for (let i = this.array.length - 1; i >= 0; i--) {
         let particle = this.array[i];
-        if (particle.position.x > p.width || particle.position.x < 0 || particle.position.y > p.height || particle.position.y < 0) {
+        if (particle.position.x > p.width + this.radius || particle.position.x < 0 - this.radius || particle.position.y > p.height + this.radius || particle.position.y < 0 - this.radius) {
+
             this.array.splice(i, 1);
         }
     }
@@ -140,6 +141,24 @@ Particles.prototype.killParticle = function (part) {
     // find the index of the particle that should be killed
     let i = this.array.indexOf(part);
     this.array.splice(i, 1);
+}
+
+Particles.prototype.shoot = function(p, enemies) {
+    for (let i = this.array.length - 1; i >= 0; i--) {
+        for (let j = enemies.array.length - 1; j >= 0; j--) {
+            let particle = this.array[i];
+            let enemy = enemies.array[j];
+
+            // check for intersection with enemy and shot. Delete both if collision
+            if (particle.position.x < enemy.position.x + enemy.radius && 
+                particle.position.x > enemy.position.x - enemy.radius &&
+                particle.position.y < enemy.position.y + enemy.radius && 
+                particle.position.y > enemy.position.y - enemy.radius) {
+                    this.array.splice(i, 1);
+                    enemies.array.splice(j, 1);
+                }
+        }
+    }
 }
 
 
