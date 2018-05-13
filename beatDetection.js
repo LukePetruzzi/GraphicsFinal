@@ -159,20 +159,35 @@ var sketch2 = function (p) {
     const PLAYER_EASING = 0.05;
     const COLOR_CHANGE_SENSITIVITY = 500;
 
+    p.button;
     p.backgroundColor = p.color(0);
     p.changingColor = false;
 
+    // particles and enemies
+    p.particles = new Particles([]);
+    p.enemies = new Particles([]);
+
     p.player = new Player(p.createVector(PLAYER_VELOCITY, PLAYER_VELOCITY), p.createVector(p.floor(p.width / 2), p.floor(p.height / 2)), 50.0, p.color(255, 255, 255), PLAYER_EASING);
 
+
+    // SETUP FUNCTION
     p.setup = function () {
         p.createCanvas(p.windowWidth, p.windowHeight);
     };
 
+    // DRAW FUNCTINO
     p.draw = function () {
         p.background(p.backgroundColor);
 
-        p.player.move(p);
+        // particles
+        if (p.mouseIsPressed) {
+            p.particles.addParticle(p, undefined, p.createVector(p.mouseX, p.mouseY), 5, p.color(255, 0, 0));
+        }
+        p.particles.updateParticlePositions(p);
+        p.particles.drawParticles(p);
+        p.particles.deleteOldParticles(p);
 
+        // beat detection
         if (beatLow.isDetected && !p.changingColor) {
             p.backgroundColor = p.color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
             p.background(p.backgroundColor);
@@ -183,6 +198,26 @@ var sketch2 = function (p) {
                 p.changingColor = false;
             }, COLOR_CHANGE_SENSITIVITY);
         }
+
+
+        // enemies
+        if (p.frameCount == 1 || p.frameCount % 100 == 0) {
+            p.enemies.addEnemyParticle(p, undefined, undefined, 50, p.color(0, 0, 255));
+        }
+        p.enemies.updateEnemyPositions(p);
+        p.enemies.drawParticles(p);
+
+        // player
+        p.player.move(p);
+    };
+
+    p.resetGame = function () {
+        p.particles = new Particles([]);
+        p.enemies = new Particles([]);
+
+        // reset the game
+        p.loop();
+        p.button.hide();
     };
 };
 var mySketch2 = new p5(sketch2, "sketch2");
