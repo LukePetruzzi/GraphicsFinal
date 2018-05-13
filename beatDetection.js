@@ -148,6 +148,9 @@ var mySketch1 = new p5(sketch1, "sketch1");
 
 // sketch 2 -> main game
 var sketch2 = function (p) {
+    const CIRCLE = 0;
+    const TRIANGLE = 1;
+
     const PLAYER_VELOCITY = 150;
     const PLAYER_EASING = 0.05;
     const BACKGROUND_COLOR_CHANGE_SENSITIVITY = 500;
@@ -162,7 +165,6 @@ var sketch2 = function (p) {
     const SHOOT_DELAY = 250;
     const SHOT_SPEED = 500;
 
-    p.button;
     p.backgroundColor = p.color(0);
     p.changingBackgroundColor = false;
 
@@ -271,20 +273,131 @@ var sketch2 = function (p) {
         p.shots = new Particles([]);
         p.deadEnemyParticles = new Particles([]);
         p.enemies = new Particles([]);
+        p.webEnemies = undefined;
         p.webEnemies = [];
-
-
         p.player.canShoot = true;
 
-        // reset the game
-        p.loop();
-        p.button.hide();
+
+        console.log("RESET IS CALLED");
+        showGameOver();
     };
 };
 var mySketch2 = new p5(sketch2, "sketch2");
 
 
+// sketch 3 -> Game Over screen
+var sketch3 = function (p) {
+
+    let prev_pos_x = 0;
+    let prev_pos_y = 0;
+    let x_vel;// = 3*Math.random()*200;
+    let y_vel;// = 3*Math.random()*80;
+
+    // might need to change these guys when we merge this whole thing??
+    const PARTICLE_SPEED = 400;
+    const FONT_SIZE = 150;
+    const TEXT_X = p.windowWidth / 2;
+    const TEXT_Y = p.windowHeight / 2;
+    const TEXT_TOP = 405;
+    const TEXT_BOTTOM = 280;
+    p.mouse_particles = new Particles([]);
+
+    p.button;
+    p.backgroundColor = p.color(0);
+    p.changingColor = false;
+
+    // SETUP FUNCTION
+    p.setup = function () {
+        p.createCanvas(p.windowWidth, p.windowHeight - SKETCH_1_HEIGHT);
+        // insert button
+        p.button = p.createButton('TRY AGAIN');
+        p.button.position(p.width / 2, p.height);
+        p.button.mousePressed(showGame);
+    };
+
+    // DRAW FUNCTION
+    p.draw = function () {
+        //p.background(p.backgroundColor);
+        p.background(0);
+
+        p.textSize(FONT_SIZE);
+        let aString = 'GAME OVER';
+        let sWidth = p.textWidth(aString);
+        p.fill(255, 0, 0);
+        p.textFont('Impact');
+        //p.text(aString, 400, 405);
+        // p.line(sWidth, 50, sWidth, 100);
+
+        let tw = p.textWidth(aString);
+        let text_min_x = p.width / 2 - tw / 2;
+        // let text_min_y = TEXT_BOTTOM;
+        let text_max_x = p.width / 2 + tw / 2;
+        // let text_max_y = TEXT_TOP;
+
+        //&& p.mouseY < text_max_y && p.mouseY > text_min_y) {
+
+        if (p.mouseX < text_max_x && p.mouseX > text_min_x) {
+            p.textAlign(p.CENTER);
+            p.text(aString, TEXT_X + Math.random() * 5 - 5, TEXT_Y + Math.random() * 5 - 5);
+        } else {
+            // else {
+            p.textAlign(p.CENTER);
+            p.text(aString, TEXT_X, TEXT_Y);
+        }
+        // }
+
+
+        // make particles follow mouse
+        // set their velocity in the opposite direction of where the mouse is going
+        let x_dir = p.mouseX - prev_pos_x;
+        let y_dir = p.mouseY - prev_pos_y;
+
+        if (x_dir > 0) {
+            x_vel = -2 * Math.random() * 200;
+        }
+        if (x_dir < 0) {
+            x_vel = 2 * Math.random() * 200;
+        }
+        if (y_dir > 0) {
+            y_vel = -2 * Math.random() * 80;
+        }
+        if (y_dir < 0) {
+            y_vel = 2 * Math.random() * 80;
+        }
+        if (x_dir == 0 && y_dir == 0) {
+            x_vel = x_vel * Math.random() * 50;
+            y_vel = y_vel * Math.random() * 50;
+        }
+
+        // get a random color: red/purple/blue
+        let red_color = Math.random() * 255;
+        let green_color;
+        let blue_color = Math.random() * 255;
+
+        // add, update and draw the particles
+        p.mouse_particles.addParticle(p, p.createVector(x_vel, y_vel), p.createVector(p.mouseX, p.mouseY), 5, p.color(red_color, 0, blue_color));
+        p.mouse_particles.updateParticlePositions(p);
+        p.mouse_particles.drawParticles(p);
+
+        // save the previous position of the particles
+        prev_pos_x = p.mouseX;
+        prev_pos_y = p.mouseY;
+    };
+};
+
 // ***~*~*~*~*~*~*~*~*~*~*~*~ END SKETCHES **~*~*~*~*~*~*~*~**~*~*~*~**~
+
+function showGameOver() {
+    document.getElementById("sketch2").innerHTML = "";
+    mySketch2 = undefined;
+    mySketch2 = new p5(sketch3, "sketch2");
+}
+
+function showGame() {
+    document.getElementById("sketch2").innerHTML = "";
+    mySketch2 = undefined;
+    mySketch2 = new p5(sketch2, "sketch2");
+}
 
 function OnsetDetect(f1, f2, str, thresh) {
     this.isDetected = false;

@@ -26,11 +26,13 @@
 //     enemies.drawParticles();
 // }
 
-function Particle(velocity, position, radius, color) {
+function Particle(velocity, position, radius, color, shape, rotation) {
     this.velocity = velocity;
     this.position = position;
     this.radius = radius;
     this.color = color;
+    this.shape = shape;
+    this.rotation = rotation;
 }
 
 function Particles(array) {
@@ -104,17 +106,10 @@ Particles.prototype.updateEnemyPositions = function (p) {
             enemy.position.y < p.player.position.y + p.player.radius && 
             enemy.position.y > p.player.position.y - p.player.radius);
         if (this.array[i].position.x < 0 || isHittingPlayer) {
-            p.fill(204, 101, 192, 127);
-            let rectWidth = 220;
-            let rectHeight = 100;
-            p.rect(p.width / 2 - rectWidth/2, p.height / 2 - rectHeight/2, 220, 100); // this looks ugly we should gix
-            p.button = p.createButton('GAME OVER LOSER');
-            p.button.position(p.width / 2, p.height / 2);
             p.noLoop();
             this.killParticle(particle);
             // insert sad dying graphics by putting a sketch over the current thing?
-
-            p.button.mousePressed(p.resetGame);
+            p.resetGame();
         }
     }
 }
@@ -143,17 +138,11 @@ Particles.prototype.updateWebEnemyPositions = function (p) {
         // check if a particle hit the left side of the screen, and then show a "Game Over" message
         // ***********+ CHANGE THIS SO ONLY ENEMY PARTICLES EXITING THE SCREEN ON THE LEFT CAUSE THIS ?? ***** or make sure the player can never exit the screen on the left <- probably the latter
         if (particle.position.x < 0) {
-            p.fill(204, 101, 192, 127);
-            let rectWidth = 220;
-            let rectHeight = 100;
-            p.rect(p.width / 2 - rectWidth/2, p.height / 2 - rectHeight/2, 220, 100); // this looks ugly we should gix
-            p.button = p.createButton('GAME OVER LOSER');
-            p.button.position(p.width / 2, p.height / 2);
             p.noLoop();
             this.killParticle(particle);
             // insert sad dying graphics by putting a sketch over the current thing?
 
-            p.button.mousePressed(p.resetGame);
+            p.resetGame();
             return;
         }
 
@@ -167,17 +156,10 @@ Particles.prototype.updateWebEnemyPositions = function (p) {
             p.player.position.y > minY &&
             p.player.position.y < maxY);
         if (isSurroundingPlayer) {
-            p.fill(204, 101, 192, 127);
-            let rectWidth = 220;
-            let rectHeight = 100;
-            p.rect(p.width / 2 - rectWidth/2, p.height / 2 - rectHeight/2, 220, 100); // this looks ugly we should gix
-            p.button = p.createButton('GAME OVER LOSER');
-            p.button.position(p.width / 2, p.height / 2);
             p.noLoop();
             this.killParticle(particle);
             // insert sad dying graphics by putting a sketch over the current thing?
-    
-            p.button.mousePressed(p.resetGame);
+            p.resetGame();
             return;
         }
     }
@@ -207,6 +189,26 @@ Particles.prototype.drawParticles = function (p) {
         let wid = particle.radius;
         let hei = particle.radius;
         p.ellipse(x, y, wid, hei);
+
+        if (particle.shape == CIRCLE) {
+            p.fill(particle.color);
+            let x = particle.position.x;
+            let y = particle.position.y;
+            let wid = particle.radius;
+            let hei = particle.radius;
+            p.ellipse(x, y, wid, hei);
+        }
+        else if (particle.shape == TRIANGLE) {
+            p.push();
+            let rot = particle.rotation;
+            let h = particle.radius;
+
+            p.translate(particle.position.x, particle.position.y);
+            p.rotate(frameCount / (rot*30));
+            p.triangle(0, h, -h, -h, h, -h);
+
+            p.pop();
+        }
     }
 }
 
