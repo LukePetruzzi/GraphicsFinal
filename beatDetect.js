@@ -31,6 +31,7 @@ function setup() {
     console.log("source duration: ", src_length);
 
     // draw the waveform to an off-screen graphic
+    console.log('this is source_file: ', source_file);
     var peaks = source_file.getPeaks(); // get an array of peaks
     pg = createGraphics(width, 150);
     pg.background(100);
