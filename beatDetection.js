@@ -19,7 +19,7 @@ let beatMid = new BeatDetect(400, 2600, "mid", 0.6);
 // sketch 1 
 var sketch1 = function (p) {
 
-    p.file = 'iRomeo.mp3'
+    p.file = 'amilli.mp3'
     p.source_file; // sound file
     p.src_length; // hold its duration
     p.fft;
@@ -151,8 +151,13 @@ var sketch2 = function (p) {
     const PLAYER_VELOCITY = 150;
     const PLAYER_EASING = 0.05;
     const BACKGROUND_COLOR_CHANGE_SENSITIVITY = 500;
-    const ENEMY_COLOR_CHANGE_SENSITIVITY = 1000;
+    const ENEMY_COLOR_CHANGE_SENSITIVITY = 400;
     const ENEMY_PARTICLE_SPEED = 500;
+    const WEB_ENEMY_SIZE = 20;
+    const WEB_ENEMY_Y_VEL_VARIANCE = 40;
+    const WEB_ENEMY_SPEED = 100;
+    const WEB_ENEMY_SPAWN_RATE = 400;
+    const WEB_ENEMY_VARIANCE = 100;
     // in milliseconds
     const SHOOT_DELAY = 250;
     const SHOT_SPEED = 500;
@@ -165,6 +170,7 @@ var sketch2 = function (p) {
     p.shots = new Particles([]);
     p.deadEnemyParticles = new Particles([]);
     p.enemies = new Particles([]);
+    p.webEnemies = [];
 
     p.player = new Player(p.createVector(PLAYER_VELOCITY, PLAYER_VELOCITY), p.createVector(p.floor(p.width / 2), p.floor(p.height / 2)), 50.0, p.color(255, 255, 255), PLAYER_EASING);
 
@@ -226,11 +232,36 @@ var sketch2 = function (p) {
         }
 
         // enemies
-        if (p.frameCount == 1 || p.frameCount % 100 == 0) {
+        if (p.frameCount % 100 == 0) {
             p.enemies.addEnemyParticle(p, ENEMY_PARTICLE_SPEED, undefined, undefined, 50, p.color(0, 0, 255));
         }
         p.enemies.updateEnemyPositions(p);
         p.enemies.drawParticles(p);
+
+        // web enemies
+        if (p.frameCount % WEB_ENEMY_SPAWN_RATE == 0) {
+            let newParticles = new Particles([]);
+            let seedHeight = Math.random() * (p.height - WEB_ENEMY_SIZE - WEB_ENEMY_VARIANCE) + WEB_ENEMY_SIZE + WEB_ENEMY_VARIANCE;
+            console.log("SEED HEIGHT: ", seedHeight);
+
+            for (let i = 0; i < 5; i++) {
+                let x = -WEB_ENEMY_SPEED;
+                let y = Math.random() * WEB_ENEMY_Y_VEL_VARIANCE;
+                let velocity = p.createVector(x, y);
+
+                newParticles.addEnemyParticle(p, WEB_ENEMY_SPEED, velocity, getRandomSpawnPositionAroundSeed(p, seedHeight, WEB_ENEMY_VARIANCE), WEB_ENEMY_SIZE, p.color(0, 0, 255));
+            }
+            p.webEnemies.push(newParticles);
+        }
+        for (let i = 0; i < p.webEnemies.length; i++) {
+            let webParticles = p.webEnemies[i];
+            webParticles.updateWebEnemyPositions(p);
+            webParticles.drawWebParticles(p);
+        }
+        for (let i = 0; i < p.webEnemies.length; i++) {
+            let webParticles = p.webEnemies[i];
+            p.shots.shoot(p, webParticles);
+        }
 
         // player
         p.player.move(p);
@@ -240,6 +271,8 @@ var sketch2 = function (p) {
         p.shots = new Particles([]);
         p.deadEnemyParticles = new Particles([]);
         p.enemies = new Particles([]);
+        p.webEnemies = [];
+
 
         p.player.canShoot = true;
 
@@ -354,4 +387,11 @@ BeatDetect.prototype.update = function (p, fftObject) {
             }, this.sensitivity);
         }
     }
+}
+
+// **~*~*~*~*~*~*~*~**~ PRIVATE HELPERS *~*~**~*~*~~**~*~
+function getRandomSpawnPositionAroundSeed(p, seedHeight, posVariance) {
+    let widthVar = Math.random() * posVariance;
+    let heightVar = Math.random() * posVariance;
+    return p.createVector(p.width + widthVar, seedHeight + heightVar);
 }

@@ -119,6 +119,84 @@ Particles.prototype.updateEnemyPositions = function (p) {
     }
 }
 
+Particles.prototype.updateWebEnemyPositions = function (p) {
+    let minX = 1000000;
+    let maxX = -1000000;
+    let minY = 1000000;
+    let maxY = -1000000;
+    
+    for (let i = this.array.length - 1; i >= 0; i--) {
+        let particle = this.array[i];
+        // update min and max positions
+        if (particle.position.x < minX) minX = particle.position.x;
+        if (particle.position.x > maxX) maxX = particle.position.x;
+        if (particle.position.y < minY) minY = particle.position.y;
+        if (particle.position.y > maxY) maxY = particle.position.y;
+
+        let deltaTime = getDeltaTime(p);
+
+        // d = (vi + vf / 2) + t
+        let displacement = (p5.Vector.add(particle.velocity, particle.velocity).div(2)).mult(deltaTime);
+
+        this.array[i].position = this.array[i].position.add(displacement);
+
+        // check if a particle hit the left side of the screen, and then show a "Game Over" message
+        // ***********+ CHANGE THIS SO ONLY ENEMY PARTICLES EXITING THE SCREEN ON THE LEFT CAUSE THIS ?? ***** or make sure the player can never exit the screen on the left <- probably the latter
+        if (particle.position.x < 0) {
+            p.fill(204, 101, 192, 127);
+            let rectWidth = 220;
+            let rectHeight = 100;
+            p.rect(p.width / 2 - rectWidth/2, p.height / 2 - rectHeight/2, 220, 100); // this looks ugly we should gix
+            p.button = p.createButton('GAME OVER LOSER');
+            p.button.position(p.width / 2, p.height / 2);
+            p.noLoop();
+            this.killParticle(particle);
+            // insert sad dying graphics by putting a sketch over the current thing?
+
+            p.button.mousePressed(p.resetGame);
+            return;
+        }
+
+        if (particle.position.y > p.height || particle.position.y < 0) {
+            console.log("THIS IS POSITION: ", particle.position);
+            this.array.splice(i, 1);
+        }
+
+        let isSurroundingPlayer = (p.player.position.x > minX &&
+            p.player.position.x < maxX &&
+            p.player.position.y > minY &&
+            p.player.position.y < maxY);
+        if (isSurroundingPlayer) {
+            p.fill(204, 101, 192, 127);
+            let rectWidth = 220;
+            let rectHeight = 100;
+            p.rect(p.width / 2 - rectWidth/2, p.height / 2 - rectHeight/2, 220, 100); // this looks ugly we should gix
+            p.button = p.createButton('GAME OVER LOSER');
+            p.button.position(p.width / 2, p.height / 2);
+            p.noLoop();
+            this.killParticle(particle);
+            // insert sad dying graphics by putting a sketch over the current thing?
+    
+            p.button.mousePressed(p.resetGame);
+            return;
+        }
+    }
+}
+
+Particles.prototype.drawWebParticles = function(p) {
+    // draw particles and then connect the closest ones with a line
+    p.stroke(255);
+    for (let i = 0; i < this.array.length; i++) {
+        let current = this.array[i];
+        for (let j = i + 1; j < this.array.length; j++) {
+            let other = this.array[j];
+            p.line(current.position.x, current.position.y, other.position.x, other.position.y);
+        }
+    }
+    p.stroke(0);
+    this.drawParticles(p);
+}
+
 Particles.prototype.drawParticles = function (p) {
     for (let i = 0; i < this.array.length; i++) {
         let particle = this.array[i];
