@@ -1,5 +1,9 @@
 "use strict";
 
+const W = 87;
+const A = 65;
+const S = 83;
+const D = 68;
 
 let player = new Player(0.0, 0.0, 0.0, 0.0);
 let targetx;
@@ -10,8 +14,9 @@ let shotsPerSec = 5;
 
 function setup() {
     createCanvas(windowWidth, windowHeight);
-    //frameRate(100);
-    player = new Player(createVector(100, 100), createVector(floor(width/2), floor(height/2)), 50.0, color(255, 0, 0));
+
+    frameRate(100);
+    player = new Player(createVector(100, 100), createVector(floor(width / 2), floor(height / 2)), 50.0, color(255, 0, 0));
 }
 
 function draw() {
@@ -20,18 +25,18 @@ function draw() {
 
     //let deltat = getDeltaTime();
 
-    if(keyIsDown(UP_ARROW)) {
+    if (keyIsDown(UP_ARROW) || keyIsDown(W)) {
         targety = player.position.y - player.velocity.y;
     }
-    if(keyIsDown(DOWN_ARROW)) {
+    if (keyIsDown(DOWN_ARROW) || keyIsDown(S)) {
         //player.position.y = player.position.y + player.velocity.y;
         targety = player.position.y + player.velocity.y;
     }
-    if(keyIsDown(LEFT_ARROW)) {
+    if (keyIsDown(LEFT_ARROW) || keyIsDown(A)) {
         //player.position.x = player.position.x - player.velocity.x;
         targetx = player.position.x - player.velocity.x;
     }
-    if(keyIsDown(RIGHT_ARROW)) {
+    if (keyIsDown(RIGHT_ARROW) || keyIsDown(D)) {
         //player.position.x = player.position.x + player.velocity.x;
         targetx = player.position.x + player.velocity.x;
     }
@@ -39,10 +44,10 @@ function draw() {
     let dy = targety - player.position.y;
     let dx = targetx - player.position.x;
 
-    if(abs(dy) > 1) {
+    if (abs(dy) > 1) {
         player.position.y += dy * easing;
     }
-    if(abs(dx) > 1) {
+    if (abs(dx) > 1) {
         player.position.x += dx * easing;
     }
 
@@ -69,22 +74,22 @@ function Player(velocity, position, radius, color) {
     this.color = color;
 }
 
-Player.prototype.clamp = function() {
-    if(player.position.x < 0) {
+Player.prototype.clamp = function () {
+    if (player.position.x < 0) {
         player.position.x = 0;
     }
-    if(player.position.y < 0) {
+    if (player.position.y < 0) {
         player.position.y = 0;
     }
-    if(player.position.x > width) {
+    if (player.position.x > width) {
         player.position.x = width;
     }
-    if(player.position.y > height) {
+    if (player.position.y > height) {
         player.position.y = height;
     }
 }
 
-Player.prototype.drawPlayer = function() {
+Player.prototype.drawPlayer = function () {
     fill(player.color);
     let x = player.position.x;
     let y = player.position.y;

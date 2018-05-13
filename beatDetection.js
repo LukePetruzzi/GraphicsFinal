@@ -153,7 +153,7 @@ var sketch1 = function (p) {
 var mySketch1 = new p5(sketch1, "sketch1");
 
 
-// sketch 2
+// sketch 2... main game
 var sketch2 = function (p) {
 
     p.COLOR_CHANGE_SENSITIVITY = 500;
