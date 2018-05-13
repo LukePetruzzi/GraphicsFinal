@@ -52,7 +52,7 @@ Particles.prototype.addParticle = function (p, velocity, position, radius, color
 }
 
 // Spawns enemy-particles on the right side of the frame every 100 frames that then move to the left at different speeds
-Particles.prototype.addEnemyParticle = function (p, speed, velocity, position, radius, color) {
+Particles.prototype.addEnemyParticle = function (p, speed, velocity, position, radius, color, shape, rotation) {
     let x; // x coordinate of velocity
     let y; // y coordinate of velocity
     let rand_height; // random y position on screen
@@ -68,7 +68,7 @@ Particles.prototype.addEnemyParticle = function (p, speed, velocity, position, r
         position = p.createVector(p.width, rand_height);
     }
     // create the enemy particle
-    let enemy_particle = new Particle(velocity, position, radius, color);
+    let enemy_particle = new Particle(velocity, position, radius, color, shape, rotation);
     // add the enemy particle
     this.array.push(enemy_particle);
 }
@@ -183,14 +183,8 @@ Particles.prototype.drawParticles = function (p) {
         let particle = this.array[i];
 
         p.fill(particle.color);
-        let x = particle.position.x;
-        let y = particle.position.y;
-        let wid = particle.radius;
-        let hei = particle.radius;
-        p.ellipse(x, y, wid, hei);
 
         if (particle.shape == p.CIRCLE) {
-            p.fill(particle.color);
             let x = particle.position.x;
             let y = particle.position.y;
             let wid = particle.radius;
@@ -203,7 +197,7 @@ Particles.prototype.drawParticles = function (p) {
             let h = particle.radius;
 
             p.translate(particle.position.x, particle.position.y);
-            p.rotate(frameCount / (rot*30));
+            p.rotate(p.frameCount / (rot*30));
             p.triangle(0, h, -h, -h, h, -h);
 
             p.pop();
@@ -227,22 +221,69 @@ Particles.prototype.killParticle = function (part) {
 }
 
 Particles.prototype.shoot = function(p, enemies) {
+    let enemiesToDelete = [];
     for (let i = this.array.length - 1; i >= 0; i--) {
+
         for (let j = enemies.array.length - 1; j >= 0; j--) {
             let particle = this.array[i];
             let enemy = enemies.array[j];
 
             // check for intersection with enemy and shot. Delete both if collision
+
+            if (particle === undefined) {
+                continue;
+            }
             if (particle.position.x < enemy.position.x + enemy.radius && 
                 particle.position.x > enemy.position.x - enemy.radius &&
                 particle.position.y < enemy.position.y + enemy.radius && 
                 particle.position.y > enemy.position.y - enemy.radius) {
+                    
                     this.array.splice(i, 1);
 
                     spawnOnEnemy(p, enemies.array[j]);
 
-                    enemies.array.splice(j, 1);
+                    enemiesToDelete.push(j);
                 }
+        }
+    }
+    for (let i = enemies.array.length - 1; i >= 0; i--) {
+        let enemy = enemies.array[i];
+        if (enemiesToDelete.includes(i)) {
+            enemies.array.splice(i, 1);
+        }
+    }
+}
+
+Particles.prototype.shootWebbies = function(p, enemies) {
+    let enemiesToDelete = [];
+    for (let i = this.array.length - 1; i >= 0; i--) {
+
+        for (let j = enemies.array.length - 1; j >= 0; j--) {
+            let particle = this.array[i];
+            let enemy = enemies.array[j];
+
+            // check for intersection with enemy and shot. Delete both if collision
+
+            if (particle === undefined) {
+                continue;
+            }
+            if (particle.position.x < enemy.position.x + enemy.radius && 
+                particle.position.x > enemy.position.x - enemy.radius &&
+                particle.position.y < enemy.position.y + enemy.radius && 
+                particle.position.y > enemy.position.y - enemy.radius) {
+                    
+                    this.array.splice(i, 1);
+
+                    spawnTrianglesOnEnemy(p, enemies.array[j]);
+
+                    enemiesToDelete.push(j);
+                }
+        }
+    }
+    for (let i = enemies.array.length - 1; i >= 0; i--) {
+        let enemy = enemies.array[i];
+        if (enemiesToDelete.includes(i)) {
+            enemies.array.splice(i, 1);
         }
     }
 }
@@ -261,7 +302,16 @@ function spawnOnEnemy(p, enemy) {
     const ENEMY_PARTICLE_RADIUS = 4;
 
     for (let i = 0; i < ENEMY_DEATH_PARTICLE_COUNT; i++) {
-        p.deadEnemyParticles.addParticle(p, undefined, enemy.position.copy().add(getRandomOnCircle(p, enemy.radius)), ENEMY_PARTICLE_RADIUS, enemy.color);
+        p.deadEnemyParticles.addParticle(p, undefined, enemy.position.copy().add(getRandomOnCircle(p, enemy.radius)), ENEMY_PARTICLE_RADIUS, enemy.color, p.CIRCLE, 0);
+    }
+}
+
+function spawnTrianglesOnEnemy(p, enemy) {
+    const ENEMY_DEATH_PARTICLE_COUNT = 50;
+    const ENEMY_PARTICLE_RADIUS = 4;
+
+    for (let i = 0; i < ENEMY_DEATH_PARTICLE_COUNT; i++) {
+        p.deadEnemyParticles.addParticle(p, undefined, enemy.position.copy().add(getRandomOnCircle(p, enemy.radius)), ENEMY_PARTICLE_RADIUS, enemy.color, p.TRIANGLE, Math.random());
     }
 }
 

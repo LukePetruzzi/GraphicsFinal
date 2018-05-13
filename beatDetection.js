@@ -14,6 +14,8 @@ let beatLowMid = new BeatDetect(140, 400, "lowMid", 0.80);
 let onsetMid = new OnsetDetect(400, 2600, "mid", 0.025);
 let beatMid = new BeatDetect(400, 2600, "mid", 0.6);
 
+let isInGame = true;
+
 
 // ***~*~*~*~*~*~*~*~*~*~*~*~ BEGIN SKETCHES **~*~*~*~*~*~*~*~**~*~*~*~*~**~
 // sketch 1 
@@ -156,8 +158,8 @@ var sketch2 = function (p) {
     const BACKGROUND_COLOR_CHANGE_SENSITIVITY = 500;
     const ENEMY_COLOR_CHANGE_SENSITIVITY = 400;
     const ENEMY_PARTICLE_SPEED = 500;
-    const WEB_ENEMY_SIZE = 20;
-    const WEB_ENEMY_Y_VEL_VARIANCE = 40;
+    const WEB_ENEMY_SIZE = 15;
+    const WEB_ENEMY_Y_VEL_VARIANCE = 80;
     const WEB_ENEMY_SPEED = 100;
     const WEB_ENEMY_SPAWN_RATE = 400;
     const WEB_ENEMY_VARIANCE = 100;
@@ -235,7 +237,7 @@ var sketch2 = function (p) {
 
         // enemies
         if (p.frameCount % 100 == 0) {
-            p.enemies.addEnemyParticle(p, ENEMY_PARTICLE_SPEED, undefined, undefined, 50, p.color(0, 0, 255));
+            p.enemies.addEnemyParticle(p, ENEMY_PARTICLE_SPEED, undefined, undefined, 50, p.color(0, 0, 255), p.CIRCLE, 0);
         }
         p.enemies.updateEnemyPositions(p);
         p.enemies.drawParticles(p);
@@ -244,14 +246,13 @@ var sketch2 = function (p) {
         if (p.frameCount % WEB_ENEMY_SPAWN_RATE == 0) {
             let newParticles = new Particles([]);
             let seedHeight = Math.random() * (p.height - WEB_ENEMY_SIZE - WEB_ENEMY_VARIANCE) + WEB_ENEMY_SIZE + WEB_ENEMY_VARIANCE;
-            console.log("SEED HEIGHT: ", seedHeight);
 
             for (let i = 0; i < 5; i++) {
                 let x = -WEB_ENEMY_SPEED;
-                let y = Math.random() * WEB_ENEMY_Y_VEL_VARIANCE;
+                let y = ((Math.random() * 2) - 1) * WEB_ENEMY_Y_VEL_VARIANCE;
                 let velocity = p.createVector(x, y);
 
-                newParticles.addEnemyParticle(p, WEB_ENEMY_SPEED, velocity, getRandomSpawnPositionAroundSeed(p, seedHeight, WEB_ENEMY_VARIANCE), WEB_ENEMY_SIZE, p.color(0, 0, 255));
+                newParticles.addEnemyParticle(p, WEB_ENEMY_SPEED, velocity, getRandomSpawnPositionAroundSeed(p, seedHeight, WEB_ENEMY_VARIANCE), WEB_ENEMY_SIZE, p.color(0, 0, 255), p.TRIANGLE, 1);
             }
             p.webEnemies.push(newParticles);
         }
@@ -262,7 +263,7 @@ var sketch2 = function (p) {
         }
         for (let i = 0; i < p.webEnemies.length; i++) {
             let webParticles = p.webEnemies[i];
-            p.shots.shoot(p, webParticles);
+            p.shots.shootWebbies(p, webParticles);
         }
 
         // player
@@ -302,23 +303,22 @@ var sketch3 = function (p) {
     const TEXT_BOTTOM = 280;
     p.mouse_particles = new Particles([]);
 
-    p.button;
     p.backgroundColor = p.color(0);
     p.changingColor = false;
 
     // SETUP FUNCTION
     p.setup = function () {
         p.createCanvas(p.windowWidth, p.windowHeight - SKETCH_1_HEIGHT);
-        // insert button
-        p.button = p.createButton('TRY AGAIN');
-        p.button.position(p.width / 2, p.height);
-        p.button.mousePressed(showGame);
     };
 
     // DRAW FUNCTION
     p.draw = function () {
         //p.background(p.backgroundColor);
         p.background(0);
+
+        if (p.mouseIsPressed && !isInGame) {
+            showGame();
+        }
 
         p.textSize(FONT_SIZE);
         let aString = 'GAME OVER';
@@ -340,12 +340,17 @@ var sketch3 = function (p) {
             p.textAlign(p.CENTER);
             p.text(aString, TEXT_X + Math.random() * 5 - 5, TEXT_Y + Math.random() * 5 - 5);
         } else {
-            // else {
             p.textAlign(p.CENTER);
             p.text(aString, TEXT_X, TEXT_Y);
         }
-        // }
-
+        // Try again text
+        p.textSize(30);
+        let bString = 'Click anywhere to try again';
+        let bWidth = p.textWidth(bString);
+        p.fill(255, 240, 240);
+        p.textFont('Impact');
+        p.textAlign(p.CENTER);
+        p.text(bString, TEXT_X, TEXT_Y * 1.15);
 
         // make particles follow mouse
         // set their velocity in the opposite direction of where the mouse is going
@@ -378,6 +383,7 @@ var sketch3 = function (p) {
         p.mouse_particles.addParticle(p, p.createVector(x_vel, y_vel), p.createVector(p.mouseX, p.mouseY), 5, p.color(red_color, 0, blue_color), p.CIRCLE, 0);
         p.mouse_particles.updateParticlePositions(p);
         p.mouse_particles.drawParticles(p);
+        p.mouse_particles.deleteOldParticles(p);
 
         // save the previous position of the particles
         prev_pos_x = p.mouseX;
@@ -388,15 +394,17 @@ var sketch3 = function (p) {
 // ***~*~*~*~*~*~*~*~*~*~*~*~ END SKETCHES **~*~*~*~*~*~*~*~**~*~*~*~**~
 
 function showGameOver() {
-    document.getElementById("sketch2").innerHTML = "";
     mySketch2 = undefined;
+    document.getElementById("sketch2").innerHTML = "";
     mySketch2 = new p5(sketch3, "sketch2");
+    isInGame = false;
 }
 
 function showGame() {
-    document.getElementById("sketch2").innerHTML = "";
     mySketch2 = undefined;
+    document.getElementById("sketch2").innerHTML = "";
     mySketch2 = new p5(sketch2, "sketch2");
+    isInGame = true;
 }
 
 function OnsetDetect(f1, f2, str, thresh) {
