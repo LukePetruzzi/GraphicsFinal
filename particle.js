@@ -285,10 +285,10 @@ Particles.prototype.shootWebbies = function(p, enemies) {
             if (particle === undefined) {
                 continue;
             }
-            if (particle.position.x < enemy.position.x + enemy.radius && 
-                particle.position.x > enemy.position.x - enemy.radius &&
-                particle.position.y < enemy.position.y + enemy.radius && 
-                particle.position.y > enemy.position.y - enemy.radius) {
+            if (particle.position.x < enemy.position.x + enemy.radius*1.5 && 
+                particle.position.x > enemy.position.x - enemy.radius*1.5 &&
+                particle.position.y < enemy.position.y + enemy.radius*1.5 && 
+                particle.position.y > enemy.position.y - enemy.radius*1.5) {
                     
                     this.array.splice(i, 1);
 
@@ -379,10 +379,10 @@ function spawnOnEnemy(p, enemy) {
 
 function spawnTrianglesOnEnemy(p, enemy) {
     const ENEMY_DEATH_PARTICLE_COUNT = 30;
-    const ENEMY_PARTICLE_RADIUS = 3;
+    const ENEMY_PARTICLE_RADIUS = 4;
 
     for (let i = 0; i < ENEMY_DEATH_PARTICLE_COUNT; i++) {
-        p.deadEnemyParticles.addParticle(p, undefined, enemy.position.copy().add(getRandomOnCircle(p, enemy.radius)), Math.random() * ENEMY_PARTICLE_RADIUS + 1, enemy.color, p.TRIANGLE, Math.random());
+        p.deadEnemyParticles.addParticle(p, undefined, enemy.position.copy().add(getRandomOnCircle(p, enemy.radius)), Math.random() * ENEMY_PARTICLE_RADIUS + 2, enemy.color, p.TRIANGLE, Math.random());
     }
 }
 
