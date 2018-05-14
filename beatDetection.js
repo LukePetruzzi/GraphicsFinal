@@ -152,6 +152,7 @@ var mySketch1 = new p5(sketch1, "sketch1");
 var sketch2 = function (p) {
     p.CIRCLE = 0;
     p.TRIANGLE = 1;
+    p.BULLET = 2;
 
     const PLAYER_VELOCITY = 150;
     const PLAYER_EASING = 0.05;
@@ -190,7 +191,7 @@ var sketch2 = function (p) {
 
         // shooting mechanic
         if (p.mouseIsPressed && p.player.canShoot) {
-            p.shots.addParticle(p, p.createVector(SHOT_SPEED, 0), p.createVector(p.player.position.x, p.player.position.y), 5, p.color(255, 0, 0), p.CIRCLE, 0);
+            p.shots.addParticle(p, p.createVector(SHOT_SPEED, 0), p.createVector(p.player.position.x, p.player.position.y), 5, p.color(255, 0, 0), p.BULLET, 0);
 
             // wait until can change color again
             p.player.canShoot = false;
@@ -252,7 +253,7 @@ var sketch2 = function (p) {
                 let y = ((Math.random() * 2) - 1) * WEB_ENEMY_Y_VEL_VARIANCE;
                 let velocity = p.createVector(x, y);
 
-                newParticles.addEnemyParticle(p, WEB_ENEMY_SPEED, velocity, getRandomSpawnPositionAroundSeed(p, seedHeight, WEB_ENEMY_VARIANCE), WEB_ENEMY_SIZE, p.color(0, 0, 255), p.TRIANGLE, 1);
+                newParticles.addEnemyParticle(p, WEB_ENEMY_SPEED, velocity, getRandomSpawnPositionAroundSeed(p, WEB_ENEMY_SIZE, seedHeight, WEB_ENEMY_VARIANCE), WEB_ENEMY_SIZE, p.color(0, 0, 255), p.TRIANGLE, 1);
             }
             p.webEnemies.push(newParticles);
         }
@@ -278,8 +279,6 @@ var sketch2 = function (p) {
         p.webEnemies = [];
         p.player.canShoot = true;
 
-
-        console.log("RESET IS CALLED");
         showGameOver();
     };
 };
@@ -511,8 +510,13 @@ BeatDetect.prototype.update = function (p, fftObject) {
 }
 
 // **~*~*~*~*~*~*~*~**~ PRIVATE HELPERS *~*~**~*~*~~**~*~
-function getRandomSpawnPositionAroundSeed(p, seedHeight, posVariance) {
+function getRandomSpawnPositionAroundSeed(p, radius, seedHeight, posVariance) {
     let widthVar = Math.random() * posVariance;
     let heightVar = Math.random() * posVariance;
-    return p.createVector(p.width + widthVar, seedHeight + heightVar);
+    if (heightVar < 4 * radius) {
+        heightVar = 4 * radius;
+    } else if (heightVar > p.height - 4 * radius) {
+        heightVar = p.height - 4 * radius;
+    }
+        return p.createVector(p.width + widthVar, seedHeight + heightVar);
 }

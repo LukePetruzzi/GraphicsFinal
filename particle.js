@@ -146,8 +146,10 @@ Particles.prototype.updateWebEnemyPositions = function (p) {
             return;
         }
 
-        if (particle.position.y > p.height || particle.position.y < 0) {
-            this.array.splice(i, 1);
+        if (particle.position.y > p.height - particle.radius|| particle.position.y < 0 + particle.radius) {
+            let newVel = particle.velocity.copy();
+            newVel.y = -newVel.y;
+            particle.velocity = newVel;
         }
 
         let isSurroundingPlayer = (p.player.position.x > minX &&
@@ -202,6 +204,14 @@ Particles.prototype.drawParticles = function (p) {
 
             p.pop();
         }
+        else if (particle.shape == p.BULLET) {
+            let x = particle.position.x;
+            let y = particle.position.y;
+            let wid = particle.radius * 3;
+            let hei = particle.radius;
+            p.ellipse(x, y, wid, hei);
+        }
+
     }
 }
 
