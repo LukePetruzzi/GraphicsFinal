@@ -308,20 +308,20 @@ Particles.prototype.changeColor = function(p, color) {
 // *~*~*~**~*~~**~*~ BEGIN PRIVATE HELPER METHODS *~*~*~*~*~*~**~*~*~
 
 function spawnOnEnemy(p, enemy) {
-    const ENEMY_DEATH_PARTICLE_COUNT = 50;
-    const ENEMY_PARTICLE_RADIUS = 4;
+    const ENEMY_DEATH_PARTICLE_COUNT = 70;
+    const ENEMY_PARTICLE_RADIUS = 2;
 
     for (let i = 0; i < ENEMY_DEATH_PARTICLE_COUNT; i++) {
-        p.deadEnemyParticles.addParticle(p, undefined, enemy.position.copy().add(getRandomOnCircle(p, enemy.radius)), ENEMY_PARTICLE_RADIUS, enemy.color, p.CIRCLE, 0);
+        p.deadEnemyParticles.addParticle(p, undefined, enemy.position.copy().add(getRandomOnCircle(p, enemy.radius)), Math.random() * ENEMY_PARTICLE_RADIUS + 2, enemy.color, p.CIRCLE, 0);
     }
 }
 
 function spawnTrianglesOnEnemy(p, enemy) {
-    const ENEMY_DEATH_PARTICLE_COUNT = 50;
-    const ENEMY_PARTICLE_RADIUS = 4;
+    const ENEMY_DEATH_PARTICLE_COUNT = 30;
+    const ENEMY_PARTICLE_RADIUS = 2;
 
     for (let i = 0; i < ENEMY_DEATH_PARTICLE_COUNT; i++) {
-        p.deadEnemyParticles.addParticle(p, undefined, enemy.position.copy().add(getRandomOnCircle(p, enemy.radius)), ENEMY_PARTICLE_RADIUS, enemy.color, p.TRIANGLE, Math.random());
+        p.deadEnemyParticles.addParticle(p, undefined, enemy.position.copy().add(getRandomOnCircle(p, enemy.radius)), Math.random() * ENEMY_PARTICLE_RADIUS + 1, enemy.color, p.TRIANGLE, Math.random());
     }
 }
 
