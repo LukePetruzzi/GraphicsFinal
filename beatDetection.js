@@ -173,8 +173,6 @@ var sketch2 = function (p) {
     const SHOOT_DELAY = 250;
     const SHOT_SPEED = 500;
 
-    p.backgroundColor = p.color(0);
-    p.changingBackgroundColor = false;
     p.blurTime = 0;
     p.isFadingBlur = false;
 
@@ -229,10 +227,6 @@ var sketch2 = function (p) {
         let elem = document.querySelectorAll("canvas");
 
         if (beatLow.isDetected) {
-            // let oldColor = p.backgroundColor;
-            // p.backgroundColor = p.color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
-            // p.background(p.lerpColor(oldColor, p.backgroundColor, 3));
-
             if (!p.isFadingBlur) {
                 for (let el of elem) {
                     el.style.filter = "hue-rotate(180deg)";
@@ -240,12 +234,6 @@ var sketch2 = function (p) {
                 p.isFadingBlur = true;
                 p.blurTime = 180;
             }
-
-            // // wait until can change color again
-            // p.changingBackgroundColor = true;
-            // setTimeout(function () {
-            //     p.changingBackgroundColor = false;
-            // }, BACKGROUND_COLOR_CHANGE_SENSITIVITY);
         }
         if (p.isFadingBlur) {
             p.blurTime -= 4;
@@ -261,36 +249,13 @@ var sketch2 = function (p) {
                 p.isFadingBlur = false;
             }
         }
-        // if (p.isFadingBlur) {
-        //     p.blurTime += 1;
-        //     if (p.blurTime < 50) {
 
-        //     }
-        //     else if (p.blurTime > 50) {
-        //         for (let el of elem) {
-        //             el.classList.remove("contrast");
-        //             el.style.filter = "contrast(200%)";
-        //         }
-        //     }
-        //     else if (p.blurTime < 100 && p.blurTime > 50) {
-        //         for (let el of elem) {
-        //             el.classList.remove("contrast");
-        //             el.style.filter = "contrast(100%)";
-        //         }
-        //     }
-        //     else {
-        //         p.isFadingBlur = false;
-        //         p.blurTime = 0;
-        //         for (let el of elem) {
-        //             el.classList.remove("blur");
-        //             // el.style.filter = "blur(0px)";
-        //         }
-        //     }
-        // }
         // mids
         if (beatMid.isDetected && !p.changingEnemyColor) {
             let enemyColor = p.color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
             p.enemies.changeColor(p, enemyColor);
+            enemyColor = p.color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
+            p.squareEnemies.changeColor(p, enemyColor);
 
             // wait until can change color again
             p.changingEnemyColor = true;
