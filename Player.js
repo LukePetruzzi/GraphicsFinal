@@ -53,17 +53,17 @@ Player.prototype.move = function (p) {
 }
 
 Player.prototype.clamp = function (p) {
-    if (this.position.x <= 0 + this.radius) {
-        this.position.x = 0 + this.radius;
+    if (this.position.x <= 0 + this.radius / 2) {
+        this.position.x = 0 + this.radius / 2;
     }
-    if (this.position.y <= 0 + this.radius) {
-        this.position.y = 0 + this.radius;
+    if (this.position.y <= 0 + this.radius / 2) {
+        this.position.y = 0 + this.radius / 2;
     }
-    if (this.position.x > p.width - this.radius) {
-        this.position.x = p.width - this.radius;
+    if (this.position.x > p.width - this.radius / 2) {
+        this.position.x = p.width - this.radius / 2;
     }
-    if (this.position.y > p.height - this.radius) {
-        this.position.y = p.height - this.radius;
+    if (this.position.y > p.height - this.radius / 2) {
+        this.position.y = p.height - this.radius / 2;
     }
 }
 

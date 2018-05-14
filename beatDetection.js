@@ -319,38 +319,6 @@ var sketch3 = function (p) {
             showGame();
         }
 
-        p.textSize(FONT_SIZE);
-        let aString = 'GAME OVER';
-        let sWidth = p.textWidth(aString);
-        p.fill(255, 0, 0);
-        p.textFont('Impact');
-        //p.text(aString, 400, 405);
-        // p.line(sWidth, 50, sWidth, 100);
-
-        let tw = p.textWidth(aString);
-        let text_min_x = p.width / 2 - tw / 2;
-        // let text_min_y = TEXT_BOTTOM;
-        let text_max_x = p.width / 2 + tw / 2;
-        // let text_max_y = TEXT_TOP;
-
-        //&& p.mouseY < text_max_y && p.mouseY > text_min_y) {
-
-        if (p.mouseX < text_max_x && p.mouseX > text_min_x) {
-            p.textAlign(p.CENTER);
-            p.text(aString, TEXT_X + Math.random() * 5 - 5, TEXT_Y + Math.random() * 5 - 5);
-        } else {
-            p.textAlign(p.CENTER);
-            p.text(aString, TEXT_X, TEXT_Y);
-        }
-        // Try again text
-        p.textSize(30);
-        let bString = 'Click anywhere to try again';
-        let bWidth = p.textWidth(bString);
-        p.fill(255, 240, 240);
-        p.textFont('Impact');
-        p.textAlign(p.CENTER);
-        p.text(bString, TEXT_X, TEXT_Y * 1.15);
-
         // make particles follow mouse
         // set their velocity in the opposite direction of where the mouse is going
         let x_dir = p.mouseX - prev_pos_x;
@@ -387,6 +355,40 @@ var sketch3 = function (p) {
         // save the previous position of the particles
         prev_pos_x = p.mouseX;
         prev_pos_y = p.mouseY;
+
+
+
+        p.textSize(FONT_SIZE);
+        let aString = 'GAME OVER';
+        let sWidth = p.textWidth(aString);
+        p.fill(255, 0, 0);
+        p.textFont('Impact');
+        //p.text(aString, 400, 405);
+        // p.line(sWidth, 50, sWidth, 100);
+
+        let tw = p.textWidth(aString);
+        let text_min_x = p.width / 2 - tw / 2;
+        // let text_min_y = TEXT_BOTTOM;
+        let text_max_x = p.width / 2 + tw / 2;
+        // let text_max_y = TEXT_TOP;
+
+        //&& p.mouseY < text_max_y && p.mouseY > text_min_y) {
+
+        if (p.mouseX < text_max_x && p.mouseX > text_min_x) {
+            p.textAlign(p.CENTER);
+            p.text(aString, TEXT_X + Math.random() * 5 - 5, TEXT_Y + Math.random() * 5 - 5);
+        } else {
+            p.textAlign(p.CENTER);
+            p.text(aString, TEXT_X, TEXT_Y);
+        }
+        // Try again text
+        p.textSize(30);
+        let bString = 'Click anywhere to try again';
+        let bWidth = p.textWidth(bString);
+        p.fill(255, 240, 240);
+        p.textFont('Impact');
+        p.textAlign(p.CENTER);
+        p.text(bString, TEXT_X, TEXT_Y * 1.15);
     };
 };
 
@@ -513,10 +515,10 @@ BeatDetect.prototype.update = function (p, fftObject) {
 function getRandomSpawnPositionAroundSeed(p, radius, seedHeight, posVariance) {
     let widthVar = Math.random() * posVariance;
     let heightVar = Math.random() * posVariance;
-    if (heightVar < 4 * radius) {
-        heightVar = 4 * radius;
-    } else if (heightVar > p.height - 4 * radius) {
-        heightVar = p.height - 4 * radius;
+    if (heightVar < 6 * radius) {
+        heightVar = 6 * radius;
+    } else if (heightVar > p.height - 6 * radius) {
+        heightVar = p.height - 6 * radius;
     }
-        return p.createVector(p.width + widthVar, seedHeight + heightVar);
+    return p.createVector(p.width + widthVar, seedHeight + heightVar);
 }
