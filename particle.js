@@ -33,6 +33,7 @@ function Particle(velocity, position, radius, color, shape, rotation) {
     this.color = color;
     this.shape = shape;
     this.rotation = rotation;
+    this.timesShot = 0;
 }
 
 function Particles(array) {
@@ -211,6 +212,13 @@ Particles.prototype.drawParticles = function (p) {
             let hei = particle.radius;
             p.ellipse(x, y, wid, hei);
         }
+        else if (particle.shape == p.SQUARE) {
+            let x = particle.position.x;
+            let y = particle.position.y;
+            let wid = particle.radius;
+            let hei = particle.radius;
+            p.rect(x, y, wid, hei);
+        }
 
     }
 }
@@ -298,6 +306,59 @@ Particles.prototype.shootWebbies = function(p, enemies) {
     }
 }
 
+Particles.prototype.shootSquare = function(p, enemies) {
+
+    const SHOTS_TO_KILL_SQUARE = 5;
+    const SQUARE_DEATH_PARTICLE_COUNT = 70;
+    const SQUARE_SHOT_PARTICLE_COUNT = 10;
+
+    let enemiesToDelete = [];
+    for (let i = this.array.length - 1; i >= 0; i--) {
+
+        for (let j = enemies.array.length - 1; j >= 0; j--) {
+            let particle = this.array[i];
+            let enemy = enemies.array[j];
+
+            // check for intersection with enemy and shot. Delete both if collision
+
+            if (particle === undefined) {
+                continue;
+            }
+
+            let centerX = enemy.position.x + enemy.radius / 2;
+            let centerY = enemy.position.y + enemy.radius / 2;
+            if (particle.position.x < centerX + enemy.radius/2 && 
+                particle.position.x > centerX - enemy.radius/2 &&
+                particle.position.y < centerY + enemy.radius/2 && 
+                particle.position.y > centerY - enemy.radius/2) {
+                    
+                    enemies.array[j].timesShot += 1;
+                    enemies.array[j].radius = enemies.array[j].radius * 0.9;
+
+
+                    this.array.splice(i, 1);
+
+
+                    spawnSquaresOnEnemy(p, enemies.array[j], SQUARE_SHOT_PARTICLE_COUNT);
+                    
+                    if (enemy.timesShot >= SHOTS_TO_KILL_SQUARE) {
+                        this.array.splice(i, 1);
+
+                        spawnSquaresOnEnemy(p, enemies.array[j], SQUARE_DEATH_PARTICLE_COUNT);
+
+                        enemiesToDelete.push(j);
+                    }
+                }
+        }
+    }
+    for (let i = enemies.array.length - 1; i >= 0; i--) {
+        let enemy = enemies.array[i];
+        if (enemiesToDelete.includes(i)) {
+            enemies.array.splice(i, 1);
+        }
+    }
+}
+
 Particles.prototype.changeColor = function(p, color) {
     for (let i = 0; i < this.array.length; i++) {
         this.array[i].color = color;
@@ -318,10 +379,18 @@ function spawnOnEnemy(p, enemy) {
 
 function spawnTrianglesOnEnemy(p, enemy) {
     const ENEMY_DEATH_PARTICLE_COUNT = 30;
-    const ENEMY_PARTICLE_RADIUS = 2;
+    const ENEMY_PARTICLE_RADIUS = 3;
 
     for (let i = 0; i < ENEMY_DEATH_PARTICLE_COUNT; i++) {
         p.deadEnemyParticles.addParticle(p, undefined, enemy.position.copy().add(getRandomOnCircle(p, enemy.radius)), Math.random() * ENEMY_PARTICLE_RADIUS + 1, enemy.color, p.TRIANGLE, Math.random());
+    }
+}
+
+function spawnSquaresOnEnemy(p, enemy, squareCount) {
+    const ENEMY_PARTICLE_RADIUS = 8;
+
+    for (let i = 0; i < squareCount; i++) {
+        p.deadEnemyParticles.addParticle(p, undefined, enemy.position.copy().add(getRandomOnCircle(p, enemy.radius)), Math.random() * ENEMY_PARTICLE_RADIUS + 3, enemy.color, p.SQUARE, Math.random());
     }
 }
 

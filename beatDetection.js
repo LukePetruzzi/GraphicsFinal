@@ -21,7 +21,7 @@ let isInGame = true;
 // sketch 1 
 var sketch1 = function (p) {
 
-    p.file = 'iRomeo.mp3'
+    p.file = 'astral.mp3'
     p.source_file; // sound file
     p.src_length; // hold its duration
     p.fft;
@@ -153,45 +153,57 @@ var sketch2 = function (p) {
     p.CIRCLE = 0;
     p.TRIANGLE = 1;
     p.BULLET = 2;
+    p.SQUARE = 3;
 
     const PLAYER_VELOCITY = 150;
     const PLAYER_EASING = 0.05;
     const BACKGROUND_COLOR_CHANGE_SENSITIVITY = 500;
     const ENEMY_COLOR_CHANGE_SENSITIVITY = 400;
-    const ENEMY_PARTICLE_SPEED = 500;
+    const ENEMY_PARTICLE_SPEED = 400;
+    const ENEMY_SPAWN_RATE = 200
     const WEB_ENEMY_SIZE = 15;
     const WEB_ENEMY_Y_VEL_VARIANCE = 80;
-    const WEB_ENEMY_SPEED = 100;
+    const WEB_ENEMY_SPEED = 80;
     const WEB_ENEMY_SPAWN_RATE = 400;
     const WEB_ENEMY_VARIANCE = 100;
+    const SQUARE_ENEMY_SPAWN_RATE = 500;
+    const SQUARE_ENEMY_SPEED = 40;
+    const SQUARE_ENEMY_SIZE = 30;
     // in milliseconds
     const SHOOT_DELAY = 250;
     const SHOT_SPEED = 500;
 
     p.backgroundColor = p.color(0);
     p.changingBackgroundColor = false;
+    p.blurTime = 0;
+    p.isFadingBlur = false;
 
     // particles and enemies
     p.shots = new Particles([]);
     p.deadEnemyParticles = new Particles([]);
     p.enemies = new Particles([]);
+    p.squareEnemies = new Particles([]);
     p.webEnemies = [];
 
     p.player = new Player(p.createVector(PLAYER_VELOCITY, PLAYER_VELOCITY), p.createVector(p.floor(p.width / 2), p.floor(p.height / 2)), 50.0, p.color(255, 255, 255), PLAYER_EASING);
 
-
+    let img;
+    p.preload = function () {
+        img = p.loadImage("124conch.png");
+    }
     // SETUP FUNCTION
     p.setup = function () {
         p.createCanvas(p.windowWidth, p.windowHeight - SKETCH_1_HEIGHT);
+        p.image(img, 0, 0);
     };
 
     // DRAW FUNCTINO
     p.draw = function () {
-        p.background(p.backgroundColor);
+        p.background(img);
 
         // shooting mechanic
         if (p.mouseIsPressed && p.player.canShoot) {
-            p.shots.addParticle(p, p.createVector(SHOT_SPEED, 0), p.createVector(p.player.position.x, p.player.position.y), 5, p.color(255, 0, 0), p.BULLET, 0);
+            p.shots.addParticle(p, p.createVector(SHOT_SPEED, 0), p.createVector(p.player.position.x + p.player.radius / 2, p.player.position.y), 5, p.color(255, 0, 0), p.BULLET, 0);
 
             // wait until can change color again
             p.player.canShoot = false;
@@ -214,16 +226,67 @@ var sketch2 = function (p) {
 
         // beat detection
         // lows
-        if (beatLow.isDetected && !p.changingBackgroundColor) {
-            p.backgroundColor = p.color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
-            p.background(p.backgroundColor);
+        let elem = document.querySelectorAll("canvas");
 
-            // wait until can change color again
-            p.changingBackgroundColor = true;
-            setTimeout(function () {
-                p.changingBackgroundColor = false;
-            }, BACKGROUND_COLOR_CHANGE_SENSITIVITY);
+        if (beatLow.isDetected) {
+            // let oldColor = p.backgroundColor;
+            // p.backgroundColor = p.color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
+            // p.background(p.lerpColor(oldColor, p.backgroundColor, 3));
+
+            if (!p.isFadingBlur) {
+                for (let el of elem) {
+                    el.style.filter = "hue-rotate(180deg)";
+                }
+                p.isFadingBlur = true;
+                p.blurTime = 180;
+            }
+
+            // // wait until can change color again
+            // p.changingBackgroundColor = true;
+            // setTimeout(function () {
+            //     p.changingBackgroundColor = false;
+            // }, BACKGROUND_COLOR_CHANGE_SENSITIVITY);
         }
+        if (p.isFadingBlur) {
+            p.blurTime -= 4;
+
+            for (let el of elem) {
+                // el.classList.remove("hue-rotate");
+                el.style.filter = "hue-rotate(" + p.blurTime + "deg)";
+            }
+            if (p.blurTime == 0) {
+                for (let el of elem) {
+                    el.classList.remove("hue-rotate");
+                }
+                p.isFadingBlur = false;
+            }
+        }
+        // if (p.isFadingBlur) {
+        //     p.blurTime += 1;
+        //     if (p.blurTime < 50) {
+
+        //     }
+        //     else if (p.blurTime > 50) {
+        //         for (let el of elem) {
+        //             el.classList.remove("contrast");
+        //             el.style.filter = "contrast(200%)";
+        //         }
+        //     }
+        //     else if (p.blurTime < 100 && p.blurTime > 50) {
+        //         for (let el of elem) {
+        //             el.classList.remove("contrast");
+        //             el.style.filter = "contrast(100%)";
+        //         }
+        //     }
+        //     else {
+        //         p.isFadingBlur = false;
+        //         p.blurTime = 0;
+        //         for (let el of elem) {
+        //             el.classList.remove("blur");
+        //             // el.style.filter = "blur(0px)";
+        //         }
+        //     }
+        // }
         // mids
         if (beatMid.isDetected && !p.changingEnemyColor) {
             let enemyColor = p.color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
@@ -235,9 +298,24 @@ var sketch2 = function (p) {
                 p.changingEnemyColor = false;
             }, ENEMY_COLOR_CHANGE_SENSITIVITY);
         }
+        // low mids
+        if (beatLowMid.isDetected && !p.changingWebColor) {
+            let enemyColor = p.color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
+
+            for (let i = 0; i < p.webEnemies.length; i++) {
+                let webParticles = p.webEnemies[i];
+                webParticles.changeColor(p, enemyColor);
+            }
+
+            // wait until can change color again
+            p.changingWebColor = true;
+            setTimeout(function () {
+                p.changingWebColor = false;
+            }, ENEMY_COLOR_CHANGE_SENSITIVITY);
+        }
 
         // enemies
-        if (p.frameCount % 100 == 0) {
+        if (p.frameCount % ENEMY_SPAWN_RATE == 0) {
             p.enemies.addEnemyParticle(p, ENEMY_PARTICLE_SPEED, undefined, undefined, 50, p.color(0, 0, 255), p.CIRCLE, 0);
         }
         p.enemies.updateEnemyPositions(p);
@@ -266,6 +344,14 @@ var sketch2 = function (p) {
             let webParticles = p.webEnemies[i];
             p.shots.shootWebbies(p, webParticles);
         }
+
+        // square enemies
+        if (p.frameCount % SQUARE_ENEMY_SPAWN_RATE == 0) {
+            p.squareEnemies.addEnemyParticle(p, SQUARE_ENEMY_SPEED, undefined, undefined, 100, p.color(0, 0, 255), p.SQUARE, 0);
+        }
+        p.squareEnemies.updateEnemyPositions(p);
+        p.squareEnemies.drawParticles(p);
+        p.shots.shootSquare(p, p.squareEnemies);
 
         // player
         p.player.move(p);
@@ -515,10 +601,11 @@ BeatDetect.prototype.update = function (p, fftObject) {
 function getRandomSpawnPositionAroundSeed(p, radius, seedHeight, posVariance) {
     let widthVar = Math.random() * posVariance;
     let heightVar = Math.random() * posVariance;
-    if (heightVar < 6 * radius) {
-        heightVar = 6 * radius;
-    } else if (heightVar > p.height - 6 * radius) {
-        heightVar = p.height - 6 * radius;
+    let finalHeight = seedHeight + heightVar;
+    if (finalHeight < 8 * radius) {
+        finalHeight = 8 * radius;
+    } else if (finalHeight > p.height - 8 * radius) {
+        finalHeight = p.height - 8 * radius;
     }
-    return p.createVector(p.width + widthVar, seedHeight + heightVar);
+    return p.createVector(p.width + widthVar, finalHeight);
 }
