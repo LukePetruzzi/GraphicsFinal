@@ -349,8 +349,8 @@ var sketch3 = function (p) {
     const FONT_SIZE = 150;
     const TEXT_X = p.windowWidth / 2;
     const TEXT_Y = p.windowHeight / 2;
-    const TEXT_TOP = 405;
-    const TEXT_BOTTOM = 280;
+    const TEXT_TOP = p.windowHeight / 2;
+    const TEXT_BOTTOM = p.windowHeight / 2.9;
     p.mouse_particles = new Particles([]);
 
     p.backgroundColor = p.color(0);
@@ -425,7 +425,7 @@ var sketch3 = function (p) {
 
         //&& p.mouseY < text_max_y && p.mouseY > text_min_y) {
 
-        if (p.mouseX < text_max_x && p.mouseX > text_min_x) {
+        if (p.mouseX < text_max_x && p.mouseX > text_min_x && p.mouseY < TEXT_TOP && p.mouseY > TEXT_BOTTOM) {
             p.textAlign(p.CENTER);
             p.text(aString, TEXT_X + Math.random() * 5 - 5, TEXT_Y + Math.random() * 5 - 5);
         } else {
